@@ -1,0 +1,50 @@
+
+body {
+	background: black;
+}
+
+a {
+	color: darkred;
+}
+
+div.header > span {
+	color: white;
+}
+
+.box {
+	width: 20em;
+	height: 21em;
+	background: orange;
+	margin: 1em;
+	padding: 0.5em;
+	text-align: center;
+}
+
+.box > a > p {
+	height: 2em;
+	margin: 0px;
+	font-size: 150%;
+}
+
+.box > a > img {
+	height: 19em;
+	width: 19em;
+}
+
+.small {
+	width: 6em;
+	height: 7em;
+	background: orange;
+	margin: 1em;
+	text-align: center;
+}
+
+.small > a > p {
+	height: 1em;
+	margin: 0px;
+}
+
+.small > a > img {
+	height: 5em;
+	width: 5em;
+}

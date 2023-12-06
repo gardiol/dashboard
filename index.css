@@ -1,0 +1,33 @@
+
+body {
+	padding: 0px;
+	margin: 0px;
+	width: 100%;
+	height: 100%;
+	text-align: center;
+}
+
+a {
+	text-decoration: none;
+}
+
+div#content {
+	display: none;
+}
+
+div#content > div.header {
+	margin-top: 1em;
+}
+
+div#content > div.header > span {
+	font-size: 200%;
+}
+
+div.container {
+	margin: 0 auto;
+}
+
+div.contained {
+	display: inline-block;
+}
+

@@ -1,0 +1,34 @@
+{
+	"title" : "Example Dashboard",
+	"header" : {
+		"img" : "",
+		"text" : "Some useless links (two big and two small)"
+		},
+	"content" :
+		[ [ {
+			"img" : "images/heating.png",
+			"text" : "Heating",
+			"link" : "/heating/",
+			"style" : "box",
+			"new_page" : false
+		},{
+                        "img" : "images/jellyfin.png",
+                        "text" : "JellyFin",
+                        "link" : "/jellyfin/",
+			"style" : "box",
+                        "new_page" : true
+                } ] ,
+		[{
+                        "img" : "images/cactii.png",
+                        "text" : "Cactii",
+                        "link" : "/cactii/",
+			"style" : "small",
+                        "new_page" : true
+		},{
+			"img" : "images/torrent.png",
+			"text" : "Torrents",
+			"link" : "/torrents/",
+			"style" : "small",
+			"new_page" : true
+		} ] ]
+}

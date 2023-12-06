@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="favicon.png" type="image.png" />
+    <meta http-equiv="Cache-Control" content="no-cache">
+    <meta http-equiv="Pragma" content="no-cache">
+    <title></title>
+    <meta charset="UTF-8"/>
+    <link rel="stylesheet" href="index.css?ver=3"/>
+    <link rel="stylesheet" href="site.css?ver=3"/>
+    <script src="js/jquery-3.7.1.min.js" language="javascript"></script>
+</head>
+<body>
+<div id="loading">
+    <img src="images/loading.png" />
+</div>
+<div id="content">
+</div>
+<script>
+$(window).on('load', function(){
+ $.get("site.json?"+(new Date().getTime()),
+  function(data){
+   $(document).prop('title', data.title );
+    if ( data.header ){
+     var header = $('<div class="header"><span>' + data.header.text + '</span></div>');
+     $('#content').append( header );
+    }
+    for (var row = 0; row < data.content.length; row++ ){
+     var box = $('<div class="container"></div>');
+     for ( var item = 0; item < data.content[row].length; item++ ){
+      if ( data.content[row][item].link != "" ) {
+       var container = $('<div class="contained ' + data.content[row][item].style + '"></div>');
+       var link = $('<a href="' + data.content[row][item].link + '" target="' + (data.content[row][item].new_page ? '_blank' : '_self') + '"></a>' );
+       var img = data.content[row][item].img != "" ? $('<img src="' + data.content[row][item].img + '" />' ) : null;
+       var text = data.content[row][item].text != "" ? $('<p>' + data.content[row][item].text + '</p>' ) : null;
+       link.append( img );
+       link.append( text );
+       container.append( link );
+       box.append( container );
+      }
+     }
+     $('#content').append( box );
+    }
+    if ( data.footer ){
+     var footer = $('<div class="footer"><span>' + data.footer.text + '</span></div>');
+     $('#content').append( footer );
+    }
+    $('#loading').fadeOut( {
+     'duration': 100,
+     'complete':
+      function() {
+       $('#content').fadeIn( { 'duration':100 } );
+      }
+    });
+  }, 'json').fail(function(){alert("Missing 'site.json'");});
+});
+</script>
+</body>
+</html>
