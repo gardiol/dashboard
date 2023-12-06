@@ -11,3 +11,6 @@ Add more tipes of buttons by adding the style to site.css and under "style" in t
 add your images to /images.
 
 that's it.
+
+Written by Willy Gardiol - willy@gardiol.org
+Released under GPL-3
