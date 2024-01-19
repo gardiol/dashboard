@@ -48,3 +48,11 @@ div.header > span {
 	height: 5em;
 	width: 5em;
 }
+
+.link {
+	width: 12em;
+	background: orange;
+	margin: 1em;
+	text-align: center;
+}
+
