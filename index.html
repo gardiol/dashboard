@@ -26,14 +26,25 @@ $(window).on('load', function(){
      var header = $('<div class="header"><span>' + data.header.text + '</span></div>');
      $('#content').append( header );
     }
-    for (var row = 0; row < data.content.length; row++ ){
-     var box = $('<div class="container"></div>');
-     for ( var item = 0; item < data.content[row].length; item++ ){
-      if ( data.content[row][item].link != "" ) {
-       var container = $('<div class="contained ' + data.content[row][item].style + '"></div>');
-       var link = $('<a href="' + data.content[row][item].link + '" target="' + (data.content[row][item].new_page ? '_blank' : '_self') + '"></a>' );
-       var img = data.content[row][item].img != "" ? $('<img src="' + data.content[row][item].img + '" />' ) : null;
-       var text = data.content[row][item].text != "" ? $('<p>' + data.content[row][item].text + '</p>' ) : null;
+    for (var r = 0; r < data.content.length; r++ ){
+     let row = data.content[r];
+     let box_title = $('<p>' + row.title + '</p>');
+     let box = $('<div class="container"></div>');
+     if ( row.foldable ) {
+	box_title.click(function(){
+		box.toggleClass("folded");
+		console.log(this);
+	});
+	box.addClass("folded");
+     }
+     box.append( box_title );
+     for ( var i = 0; i < row.content.length; i++ ){
+      let item = row.content[i];
+      if ( item.link != "" ) {
+       var container = $('<div class="contained ' + item.style + '"></div>');
+       var link = $('<a href="' + item.link + '" target="' + (item.new_page ? '_blank' : '_self') + '"></a>' );
+       var img = item.img != "" ? $('<img src="' + item.img + '" />' ) : null;
+       var text = item.text != "" ? $('<p>' + item.text + '</p>' ) : null;
        link.append( img );
        link.append( text );
        container.append( link );

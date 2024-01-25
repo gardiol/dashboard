@@ -31,3 +31,14 @@ div.contained {
 	display: inline-block;
 }
 
+.container {
+	overflow-y: hidden;
+}
+
+.container > p {
+	color: white;
+}
+
+.folded {
+	height: 2em;
+}
