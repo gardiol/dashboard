@@ -7,8 +7,8 @@
     <meta http-equiv="Pragma" content="no-cache">
     <title></title>
     <meta charset="UTF-8"/>
-    <link rel="stylesheet" href="index.css?ver=3"/>
-    <link rel="stylesheet" href="site.css?ver=4"/>
+    <link rel="stylesheet" href="index.css?ver=4"/>
+    <link rel="stylesheet" href="site.css?ver=5"/>
     <script src="js/jquery-3.7.1.min.js" language="javascript"></script>
 </head>
 <body>
@@ -28,7 +28,7 @@ $(window).on('load', function(){
     }
     for (var r = 0; r < data.content.length; r++ ){
      let row = data.content[r];
-     let box_title = $('<p>' + row.title + '</p>');
+     let box_title = row.title != "" ? $('<p>' + row.title + '</p>') : "";
      let box = $('<div class="container"></div>');
      if ( row.foldable ) {
 	box_title.click(function(){
