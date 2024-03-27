@@ -35,11 +35,6 @@ div.contained {
 	overflow-y: hidden;
 }
 
-.container > p {
-	color: white;
-	border-top: 1px solid white;
-}
-
 .folded {
 	height: 2.1em;
 }

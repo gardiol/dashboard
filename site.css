@@ -60,3 +60,9 @@ div.header > span {
 	border-bottom: 1px solid white;
 	width: 10em;
 }
+
+.container > p {
+	color: white;
+	border-top: 1px solid white;
+}
+
