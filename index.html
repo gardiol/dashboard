@@ -23,7 +23,7 @@ $(window).on('load', function(){
   function(data){
    $(document).prop('title', data.title );
     if ( data.header ){
-     var header = $('<div class="header"><span>' + data.header.text + '</span></div>');
+     var header = $('<div class="header">' + ( data.header.img ? '<div><img src="'+data.header.img+'" /></div>' : '' )+ '<span>' + data.header.text + '</span></div>');
      $('#content').append( header );
     }
     for (var r = 0; r < data.content.length; r++ ){
@@ -54,7 +54,8 @@ $(window).on('load', function(){
      $('#content').append( box );
     }
     if ( data.footer ){
-     var footer = $('<div class="footer"><span>' + data.footer.text + '</span></div>');
+     var l=data.footer.link;
+     var footer = $('<div class="footer"><span>' + ( l ? '<a href="'+l+'">' : '') + data.footer.text + ( l ? '</a>' : '' ) + '</span></div>');
      $('#content').append( footer );
     }
     $('#loading').fadeOut( {
