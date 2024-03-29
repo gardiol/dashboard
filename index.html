@@ -8,7 +8,7 @@
     <title></title>
     <meta charset="UTF-8"/>
     <link rel="stylesheet" href="index.css?ver=5"/>
-    <link rel="stylesheet" href="site.css?ver=6"/>
+    <link rel="stylesheet" href="site.css?ver=8"/>
     <script src="js/jquery-3.7.1.min.js" language="javascript"></script>
 </head>
 <body>
@@ -18,6 +18,12 @@
 <div id="content">
 </div>
 <script>
+function exec_get( url, target ) {
+ $.get( url, function( data ) {
+  $( target ).html( data );
+ });
+}
+var runners=[];
 $(window).on('load', function(){
  $.get("site.json?"+(new Date().getTime()),
   function(data){
@@ -38,26 +44,39 @@ $(window).on('load', function(){
 	box.addClass("folded");
      }
      box.append( box_title );
-     for ( var i = 0; i < row.content.length; i++ ){
+     for ( let i = 0; i < row.content.length; i++ ){
       let item = row.content[i];
-      if ( item.link != "" ) {
-       var container = $('<div class="contained ' + item.style + '"></div>');
-       var link = $('<a href="' + item.link + '" target="' + (item.new_page ? '_blank' : '_self') + '"></a>' );
-       var img = item.img != "" ? $('<img src="' + item.img + '" />' ) : null;
-       var text = item.text != "" ? $('<p>' + item.text + '</p>' ) : null;
+      let container = $('<div class="contained ' + item.style + '"></div>');
+      let text = item.text != "" ? $('<p>' + item.text + '</p>' ) : null;
+      if ( item.run ) { 
+       let run_target = $('<div></div>');
+       runners.push( {run:item.run, target:run_target } );
+       container.append( run_target );
+       container.append( text );
+      }
+      if ( item.link ) {
+       let img = item.img != "" ? $('<img src="' + item.img + '" />' ) : null;
+       let link = $('<a href="' + item.link + '" target="' + (item.new_page ? '_blank' : '_self') + '"></a>' );
        link.append( img );
        link.append( text );
        container.append( link );
-       box.append( container );
       }
+      box.append( container );
      }
      $('#content').append( box );
     }
     if ( data.footer ){
-     var l=data.footer.link;
-     var footer = $('<div class="footer"><span>' + ( l ? '<a href="'+l+'">' : '') + data.footer.text + ( l ? '</a>' : '' ) + '</span></div>');
+     let l=data.footer.link;
+     let footer = $('<div class="footer"><span>' + ( l ? '<a href="'+l+'">' : '') + data.footer.text + ( l ? '</a>' : '' ) + '</span></div>');
      $('#content').append( footer );
     }
+
+    for ( let r = 0; r < runners.length; r++ ){
+     let run=runners[r];
+     let func=function() { exec_get( run.run, run.target ) };
+     setTimeout( function(){ func(); setInterval( func, 5000 ) }, 500  );
+    }
+    console.log( runners );
     $('#loading').fadeOut( {
      'duration': 100,
      'complete':

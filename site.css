@@ -18,6 +18,8 @@ div.header > span {
 	margin: 1em;
 	padding: 0.5em;
 	text-align: center;
+	border-radius: 3em;
+	box-shadow: 0.2em 0.2em darkred;
 }
 
 .box > a > p {
@@ -32,11 +34,14 @@ div.header > span {
 }
 
 .small {
-	width: 6em;
-	height: 7em;
+	width: 5em;
+	height: 6em;
 	background: orange;
 	margin: 1em;
+	padding: 0.5em;
 	text-align: center;
+	border-radius: 1em;
+	box-shadow: 0.2em 0.2em darkred;
 }
 
 .small > a > p {
@@ -45,8 +50,8 @@ div.header > span {
 }
 
 .small > a > img {
-	height: 5em;
-	width: 5em;
+	height: 4.5em;
+	width: 4.5em;
 }
 
 .link {
@@ -54,6 +59,8 @@ div.header > span {
 	background: orange;
 	margin: 1em;
 	text-align: center;
+	border-radius: 1em;
+	box-shadow: 0.2em 0.2em darkred;
 }
 
 .line {
@@ -66,3 +73,20 @@ div.header > span {
 	border-top: 1px solid white;
 }
 
+.runner {
+	max-width: 40em;
+	max-height: 40em;
+	background: orange;
+	color: darkred;
+	margin: 1em;
+	padding: 0.5em;
+	text-align: center;
+	border-radius: 1em;
+	box-shadow: 0.2em 0.2em darkred;
+}
+
+.runner > p {
+	color: darkred;
+	margin: 0px;
+	font-size: 150%;
+}
