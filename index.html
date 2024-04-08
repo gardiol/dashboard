@@ -93,14 +93,18 @@ $(window).on('load', function(){
     		}
     		// is there a footer?
 		if ( data.footer ){
-			let link = data.footer.link ? '<a href="'+ data.footer.link +'">' :  null;
-			let text = data.footer.text ? '<span>' + data.footer.text + '</span>' : null;
+			let link = data.footer.link ? $('<a href="'+ data.footer.link +'">') :  null;
+			let text = data.footer.text ? $('<span>' + data.footer.text + '</span>') : null;
 			let l=data.footer.link;
 			let footer = $('<div class="footer"></div>');
 			if ( text ){
-				if ( link )
-					text.append( link );
-				footer.append( text );
+				if ( link ){
+					link.append( text );
+					footer.append( link );
+				}
+				else{
+					footer.append( text );
+				}
 			} 
 			else if ( link ){
 				footer.append( link );
