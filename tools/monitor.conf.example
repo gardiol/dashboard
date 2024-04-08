@@ -1,0 +1,48 @@
+
+BASE_URL="/"
+
+PAGES="services.sh:services \
+	system.sh:load:ram:mounts \
+	network.sh:connectivity:pings \
+	monitor.sh:services:load:ram:mounts:connectivity:pings \
+	" 
+
+MOUNTPOINTS="Deposito:/deposito Data:/data Root:/ Backup:/storage/backup/NAS"
+FILESYSTEM_LIMIT=90
+
+SERVICES_PIDS="Audiobookshelf:/var/run/audiobookshelf.pid \
+	Backrest:/var/run/backrest.pid \
+	Bazarr:/var/run/bazarr.pid \
+	DnsMasq:/var/run/dnsmasq.pid \
+	GITea:/var/run/gitea.pid \
+	HomeGallery:/var/run/homegallery.pid \
+	HomeGalleryAPI:/var/run/homegalleryapi.pid \
+	Jellyfin:/var/run/jellyfin.pid \
+	Lidarr:/var/run/lidarr.pid \
+	Nginx:/var/run/nginx.pid \
+	PhotoBrowser:/var/run/photobrowser.pid \
+	php-fpm-main:/var/run/php-fpm-php8.2.pid \
+	PiGallery2:/var/run/pigallery2.pid \
+	Prowlarr:/var/run/prowlarr.pid \
+	Radarr:/var/run/radarr.pid \
+	Radicale:/var/run/radicale.pid \
+	Readarr-Audiobooks:/var/run/readarr-audiobooks.pid \
+	Readarr:/var/run/readarr.pid \
+	Romm:/var/run/romm.pid \
+	SearXNG:/var/run/searxng.pid \
+	SilverBullet:/var/run/silverbullet.pid \
+	VideoServer:/var/run/videoserver.pid \
+	SyncThing:/var/run/syncthing.pid \
+	SyncThing-Photos:/var/run/syncthing.photos.pid \
+	VsFTPd:/var/run/vsftpd.pid"
+
+MEMORY_LIMIT=20
+
+LOAD_MAX=20
+LOAD_MIN=19
+
+# name:gateway:test_destination
+UPLINKS="vodafone:192.168.0.1:95.110.230.195 fastweb:192.168.1.254:95.110.230.204"
+
+
+PINGS="host1:10.70.43.3 host2:10.70.43.4 host3:10.70.43.10"

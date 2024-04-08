@@ -18,73 +18,118 @@
 <div id="content">
 </div>
 <script>
-function exec_get( url, target ) {
- $.get( url, function( data ) {
-  $( target ).html( data );
- });
-}
+// Keep track of stuff that needs to run periodically
 var runners=[];
-$(window).on('load', function(){
- $.get("site.json?"+(new Date().getTime()),
-  function(data){
-   $(document).prop('title', data.title );
-    if ( data.header ){
-     var header = $('<div class="header">' + ( data.header.img ? '<div><img src="'+data.header.img+'" /></div>' : '' )+ '<span>' + data.header.text + '</span></div>');
-     $('#content').append( header );
-    }
-    for (var r = 0; r < data.content.length; r++ ){
-     let row = data.content[r];
-     let box_title = row.title != "" ? $('<p>' + row.title + '</p>') : "";
-     let box = $('<div class="container"></div>');
-     if ( row.foldable ) {
-	box_title.click(function(){
-		box.toggleClass("folded");
-		console.log(this);
-	});
-	box.addClass("folded");
-     }
-     box.append( box_title );
-     for ( let i = 0; i < row.content.length; i++ ){
-      let item = row.content[i];
-      let container = $('<div class="contained ' + item.style + '"></div>');
-      let text = item.text != "" ? $('<p>' + item.text + '</p>' ) : null;
-      if ( item.run ) { 
-       let run_target = $('<div></div>');
-       runners.push( {run:item.run, target:run_target } );
-       container.append( run_target );
-       container.append( text );
-      }
-      if ( item.link ) {
-       let img = item.img != "" ? $('<img src="' + item.img + '" />' ) : null;
-       let link = $('<a href="' + item.link + '" target="' + (item.new_page ? '_blank' : '_self') + '"></a>' );
-       link.append( img );
-       link.append( text );
-       container.append( link );
-      }
-      box.append( container );
-     }
-     $('#content').append( box );
-    }
-    if ( data.footer ){
-     let l=data.footer.link;
-     let footer = $('<div class="footer"><span>' + ( l ? '<a href="'+l+'">' : '') + data.footer.text + ( l ? '</a>' : '' ) + '</span></div>');
-     $('#content').append( footer );
-    }
 
-    for ( let r = 0; r < runners.length; r++ ){
-     let run=runners[r];
-     let func=function() { exec_get( run.run, run.target ) };
-     setTimeout( function(){ func(); setInterval( func, 5000 ) }, 500  );
-    }
-    console.log( runners );
-    $('#loading').fadeOut( {
-     'duration': 100,
-     'complete':
-      function() {
-       $('#content').fadeIn( { 'duration':100 } );
-      }
-    });
-  }, 'json').fail(function(){alert("Missing 'site.json'");});
+// run a GET and put it's output into an DOM tag
+function exec_get( url, target ){
+	$.get( url, function( data ){
+		$(target).html(data);
+	})
+	.fail( function() {
+		$(target).html("--load error--")
+	});
+}
+
+// start the magic when the page is fully loaded
+$(window).on('load', function(){
+	// site.json URL change son each reload to force cache invalidation for site.json:
+	$.get("site.json?" + (new Date().getTime()), function(data){
+		// Set page title
+		$(document).prop('title', data.title );
+    		// Do we have an header?
+		if ( data.header ){
+			let header_img = data.header.img ? '<div><img src="'+data.header.img+'" /></div>' : null;
+			let header_text = data.header.text ? '<span>' + data.header.text + '</span>' : null;
+			let header = $('<div class="header"></div>');
+			if ( header_img )
+				header.append( header_img );
+			if ( header_text )
+				header.append( header_text );
+     			$('#content').append( header );
+    		}
+		// Iterate all content rows
+		for (let r = 0; r < data.content.length; r++ ){
+			let row = data.content[r];
+			let box = $('<div class="container"></div>');
+			// an empty title means no foldable is possible
+			let box_title = row.title != "" ? $('<p>' + row.title + '</p>') : null;
+			if ( box_title ){
+				// a foldable row is folded by default
+				if ( row.foldable ){
+					box_title.click(function(){
+						box.toggleClass("folded");
+					});
+					box.addClass("folded");
+	     			}
+	     			box.append( box_title );
+			}
+     			// Iterate on each item in row
+			for ( let i = 0; i < row.content.length; i++ ){
+				let item = row.content[i];
+				let container = $('<div class="contained ' + item.style + '"></div>');
+				let text = item.text != "" ? $('<p>' + item.text + '</p>' ) : null;
+				// Is this an item with a link?
+				if ( item.link ) {
+					let img = item.img != "" ? $('<img src="' + item.img + '" />' ) : null;
+					let link = $('<a href="' + item.link + '" target="' + (item.new_page ? '_blank' : '_self') + '"></a>' );
+					if ( img )
+						link.append( img );
+					if ( text )
+						link.append( text );
+					container.append( link );
+				}
+				// Is this an item that contains output?
+				if ( item.run ) { 
+					let run_target = $('<div></div>');
+					runners.push( {run:item.run, target:run_target, interval:item.interval*1000 } );
+					container.append( run_target );
+					if ( text )
+						container.append( text );
+				}
+      				box.append( container );
+     			}
+     			$('#content').append( box );
+    		}
+    		// is there a footer?
+		if ( data.footer ){
+			let link = data.footer.link ? '<a href="'+ data.footer.link +'">' :  null;
+			let text = data.footer.text ? '<span>' + data.footer.text + '</span>' : null;
+			let l=data.footer.link;
+			let footer = $('<div class="footer"></div>');
+			if ( text ){
+				if ( link )
+					text.append( link );
+				footer.append( text );
+			} 
+			else if ( link ){
+				footer.append( link );
+			}
+     			$('#content').append( footer );
+    		}
+		// Setup all runners to run 
+		for ( let r = 0; r < runners.length; r++ ){
+			let run=runners[r];
+			let func=function(){
+				exec_get( run.run, run.target );
+			};
+			setTimeout( function(){ 
+				func(); 
+				setInterval( func, run.interval );
+			}, 100);
+    		}
+
+    		// All ready: fade in content
+		$('#loading').fadeOut( {
+			'duration': 100,
+			'complete':
+			function() {
+				$('#content').fadeIn( { 'duration':100 } );
+      			}
+    		});
+  	}, 'json').fail( function(){
+		alert("Missing 'site.json'");
+	});
 });
 </script>
 </body>

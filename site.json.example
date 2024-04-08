@@ -1,34 +1,42 @@
 {
-	"title" : "Example Dashboard",
-	"header" : {
-		"img" : "",
-		"text" : "Some useless links (two big and two small)"
-		},
-	"content" :
-		[ [ {
-			"img" : "images/heating.png",
-			"text" : "Heating",
-			"link" : "/heating/",
-			"style" : "box",
-			"new_page" : false
-		},{
-                        "img" : "images/jellyfin.png",
-                        "text" : "JellyFin",
-                        "link" : "/jellyfin/",
-			"style" : "box",
-                        "new_page" : true
-                } ] ,
-		[{
-                        "img" : "images/cactii.png",
-                        "text" : "Cactii",
-                        "link" : "/cactii/",
-			"style" : "small",
-                        "new_page" : true
-		},{
-			"img" : "images/torrent.png",
-			"text" : "Torrents",
-			"link" : "/torrents/",
-			"style" : "small",
-			"new_page" : true
-		} ] ]
+    "title" : "My Dashboard Title",         // Page title
+    "header" : {                            // Header is optional
+        "img" : "",                         // header image is opional
+        "text" : "My beloved Dashboard"     // header text is optional
+        },
+    "content" : [                           // List of rows
+        {
+        "foldable": false,                  // Can the row be folded?
+        "title": "",                        // Row title, optional
+        "content":                          // row content
+
+            // Example of two link blocks to a service or page:
+            [ {
+                "img" : "images/monit.png", // optional image to use
+                "text" : "MonIT",           // optional text to display
+                "link" : "/monit/",         // link to open
+                "style" : "box",            // which style to use (see below)
+                "new_page" : true           // open the link in a new page or current page
+            },{
+                "img" : "images/netdt.png", // optional image to use
+                "text" : "NetData",         // optional text to display
+                "link" : "https://nd.nd.nd",// link to open
+                "style" : "small",          // which style to use (see below)
+                "new_page" : true           // open the link in a new page or current page
+            } ]
+
+
+            // Example of one link block to display external output in dashboard:
+            [ {
+                "text" : "Services",        // Optional text
+                "run" : "/cgi/monitor.sh",  // Output of this URL will be displayed
+                "style" : "runner",         // which style to use (see below)
+                "interval" : 5              // Interval to run the update, in seconds
+            } ]
+        } ],
+     "footer" : {
+        "img" : "",
+        "text" : "Contact Willy Gardiol",
+        "link" : "mailto://willy@gardiol.org"
+    }
 }
