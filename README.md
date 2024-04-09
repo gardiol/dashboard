@@ -215,7 +215,8 @@ The first (ex: system.sh) is the expected call name, while the others (load:ram:
 There is a second setting you need to specify:
     BASE_URL="/"
 
-that needs to point to your dashboard base-url so that the *site.css* can be found. The monitor will require the *.ok* and *.ko* classes to be defined.
+Each "page" of information is built on specific templates under the "monitor/templates" folder, you can edit those to fit your output style. The monitor will also 
+require a **monitor.css** file located under the BASE_URL folder.
 
 
 ### List of possible monitors
@@ -278,11 +279,13 @@ between MIN and MAX will be print in grey.
 
 #### ram
 
-Print free RAM in megabytes and in percentage:
+Print free RAM & SWAP in megabytes and in percentage:
     MEMORY_LIMIT=20
+    SWAP_LIMIT=20
 
 Where:
 - MEMORY_LIMIT: percentage above which color is red
+- SWAP_LIMIT: percentage above which color is red
 
 
 ### Monitoring web server example
