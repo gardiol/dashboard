@@ -89,7 +89,8 @@ function parse_mountpoint()
 	export MP_TOT=${data[1]}
 	export MP_USE=${data[2]}
 	export MP_FRE=${data[3]}
-	export MP_PER=${data[4]}
+	local tmp=${data[4]}
+	export MP_PER=${tmp%%%}
 }
 
 #
@@ -187,156 +188,298 @@ function connectivity_test()
 	fi
 }
 
+# 
+# Display connectivity status
+# Templates:
+#  - templates/connectivity.sh 
+# Inout Config variables:
+#  - UPLINKS = array of uplink ISPs in the format: name:gateway:destination name:gateway:destination ...
+# Output Template variables:
+#  - NUM_ISPS        = number of total isps (arrays size)
+#  - ISP_NAME        = array of host names
+#  - ISP_GW_CLASS    = array of ping results, 0(ping ok) 1(ping failed)
+#  - ISP_GW_STATUS   = array of ping results, 0(ping ok) 1(ping failed)
+#  - ISP_DEST_CLASS  = array of classes (ok for STATUS=0 and ko for STATUS=1)
+#  - ISP_DEST_STATUS = array of classes (ok for STATUS=0 and ko for STATUS=1)
+#
 function print_connectivity()
 {
+	local NUM_ISPS=0
+	local ISP_NAME=()
+	local ISP_GW_CLASS=()
+	local ISP_GW_STATUS=()
+	local ISP_DEST_CLASS=()
+	local ISP_DEST_STATUS=()
+
 	for isp in ${UPLINKS}
 	do
-		local name=${isp%%:*}
+		ISP_NAME[${NUM_ISPS}]=${isp%%:*}
 		local gw_dest=${isp#*:}
 		local gw=${gw_dest%%:*}
 		local dest=${gw_dest##*:}
 		connectivity_test ${gw} ${dest}
-		if [ $GATEWAY_TEST -eq 0 ]
+		ISP_GW_STATUS[${NUM_ISPS}]=${GATEWAY_TEST}
+		if [ ${ISP_GW_STATUS[${NUM_ISPS}]} -eq 0 ]
 		then
-			c1="ok"
-			v1="Active";
+			ISP_GW_CLASS[${NUM_ISPS}]="ok"
 		else
-			c1="ko"
-			v1="Down";
+			ISP_GW_CLASS[${NUM_ISPS}]="ko"
 		fi
-		if [ $DESTINATION_TEST -eq 0 ]
+		ISP_DEST_STATUS[${NUM_ISPS}]=${DESTINATION_TEST}
+		if [ ${ISP_DEST_STATUS[${NUM_ISPS}]} -eq 0 ]
 		then
-			c2="ok"
-			v2="Online";
+			ISP_DEST_CLASS[${NUM_ISPS}]="ok"
 		else
-			c2="ko"
-			v2="Offline";
+			ISP_DEST_CLASS[${NUM_ISPS}]="ko"
 		fi
-		echo "<div><span class='normal'>${name}: </span><span class='${c1}'>${v1}</span> / <span class='${c2}'>${v2}</div>"
-	
-		echo "</div>"
+		NUM_ISPS=$(( NUM_ISPS+1 ))
 	done
+	source "templates/connectivity.sh"
 }
 
+# 
+# Display ping status
+# Templates:
+#  - templates/ping.sh 
+# Inout Config variables:
+#  - PINGS = list of hosts to ping = name:destination name:destination ...
+# Output Template variables:
+#  - PING_NUM     = number of total hosts (arrays size)
+#  - PING_HOSTS   = array of host names
+#  - PING_STATUS  = array of ping results, 0(ping ok) 1(ping failed)
+#  - PING_CLASS   = array of classes (ok for STATUS=0 and ko for STATUS=1)
+#  - PING_RTT_MIN = array of minimum RTTs
+#  - PING_RTT_AVG = array of average RTTs
+#  - PING_RTT_MAX = array of maximum RTTs
+#
 function print_pings()
 {
-	echo "<div><div class=''>Devices:</div>"
+	local PING_NUM=0
+	local PING_HOSTS=()
+	local PING_STATUS=()
+	local PING_RTT_MIN=()
+	local PING_RTT_AVG=()
+	local PING_RTT_MAX=()
 	for p in ${PINGS}
 	do
-		name=${p%:*}
-		destination=${p#*:}
-		echo "<div>"
-		ping_test ${destination} 1
+		PING_HOSTS[${PING_NUM}]=${p%:*}
+		ping_test ${p#*:}
+		PING_STATUS[${PING_NUM}]=${PING_OK}
 		if [ ${PING_OK} -eq 0 ]
-		then
-			class="ok"
-			value="-up-";
+		then 
+			PING_CLASS[${PING_NUM}]="ok"
 		else
-			class="ko"
-			value="down";
+			PING_CLASS[${PING_NUM}]="ko"
 		fi
-		echo "<div><span class='normal'>${name}: </span><span class='${class}'>${value}</span></div>"
-		echo "</div>"
+		PING_RTT_MIN[${PING_NUM}]=${RTT_MIN}
+		PING_RTT_AVG[${PING_NUM}]=${RTT_MIN}
+		PING_RTT_MIN[${PING_NUM}]=${RTT_MIN}
+		PING_NUM=$(( PING_NUM+1 ))
 	done
+	source "templates/ping.sh"
 }
 
+# 
+# Display mountpoints and filesystems data
+# Templates:
+#  - templates/mounts.sh
+# Inout Config variables:
+#  - MOUNTPOINTS      = list of mounts, format: name:mountpoint name:mountpoint ...
+#  - FILESYSTEM_LIMIT = percentage above which "ko" class is used instead of "ok" class
+# Output Template variables:
+#  - NUM_MOUNTS   = number of mounts (size of arrays)
+#  - MOUNT_NAME   = array of service names
+#  - MOUNT_CLASS  = class for service (ok if running, ko if not running) (array)
+#  - MOUNT_DEV    = mount device  (array)
+#  - MOUNT_PER    = filesystem used percentage (array)
+#  - MOUNT_TOT    = filesystem size in kilobytes (array)
+#  - MOUNT_TOT_MB = filesystem size in megabytes (array)
+#  - MOUNT_TOT_GB = filesystem size in gigabytes (array)
+#  - MOUNT_USE    = filesystem used in kilobytes (array)
+#  - MOUNT_USE_MB = filesystem used in megabytes (array)
+#  - MOUNT_USE_GB = filesystem used in gigabytes (array)
+#  - MOUNT_FRE    = filesystem free in kilobytes (array)
+#  - MOUNT_FRE_MB = filesystem free in megabytes (array)
+#  - MOUNT_FRE_GB = filesystem free in gigabytes (array)
+#
 function print_mounts()
 {
-	echo '<div><div>Mounts:</div>'
+	local NUM_MOUNTS=0
+	local MOUNT_NAME=()
+	local MOUNT_CLASS=()
+	local MOUNT_DEV=()
+	local MOUNT_PER=()
+	local MOUNT_TOT=()
+	local MOUNT_USE=()
+	local MOUNT_FRE=()
+	local MOUNT_TOT_MB=()
+	local MOUNT_USE_MB=()
+	local MOUNT_FRE_MB=()
+	local MOUNT_TOT_GB=()
+	local MOUNT_USE_GB=()
+	local MOUNT_FRE_GB=()
+
 	for mp in ${MOUNTPOINTS}
 	do
-		name=${mp%%:*}
-		point=${mp##*:}
-		parse_mountpoint "${point}"
+		MOUNT_NAME[${NUM_MOUNTS}]=${mp%%:*}
+		parse_mountpoint "${mp##*:}"
+		MOUNT_CLASS[${NUM_MOUNTS}]="ko"
 		if [ ${MP_OK} -eq 0 ]
 		then
-			if [ ${MP_PER%%%} -lt ${FILESYSTEM_LIMIT} ]
+			MOUNT_DEV[${NUM_MOUNTS}]=${MP_DEV}
+			MOUNT_PER[${NUM_MOUNTS}]=${MP_PER%%%}
+			MOUNT_TOT[${NUM_MOUNTS}]=${MP_TOT}
+			MOUNT_TOT_MB[${NUM_MOUNTS}]=$(( MP_TOT/1024 )).$(( MP_TOT%1024+10 ))
+			MOUNT_TOT_GB[${NUM_MOUNTS}]=$(( MP_TOT/1024/1024 )).$(( MP_TOT/1024%1024+10 ))
+			MOUNT_USE[${NUM_MOUNTS}]=${MP_USE}
+			MOUNT_USE_MB[${NUM_MOUNTS}]=$(( MP_USE/1024 )).$(( MP_USE%1024+10 ))
+			MOUNT_USE_GB[${NUM_MOUNTS}]=$(( MP_USE/1024/1024 )).$(( MP_USE/1024%1024+10 ))
+			MOUNT_FRE[${NUM_MOUNTS}]=${MP_FRE}
+			MOUNT_FRE_MB[${NUM_MOUNTS}]=$(( MP_FRE/1024 )).$(( MP_FRE%1024+10 ))
+			MOUNT_FRE_GB[${NUM_MOUNTS}]=$(( MP_FRE/1024/1024 )).$(( MP_FRE/1024%1024+10 ))
+
+			if [ ${MOUNT_PER[${NUM_MOUNTS}]} -lt ${FILESYSTEM_LIMIT} ]
 			then
-				class="ok"
-			else
-				class="ko"
+				MOUNT_CLASS[${NUM_MOUNTS}]="ok"
 			fi
-		else
-			class="ko"
 		fi
-		echo "<div class='${class}'>${name}: ${MP_PER}</div>"
+		NUM_MOUNTS=$(( NUM_MOUNTS+1 ))
 	done
-	echo '</div>'
+	source "templates/mounts.sh"
 }
 
+# 
+# Display services/processes status
+# Templates:
+#  - templates/services.sh
+# Inout Config variables:
+#  - SERVICES_PIDS = list of services, format: name:pidfile name:pidfile ...
+# Output Template variables:
+#  - NUM_SERVICES   = number of services (size of arrays)
+#  - SERVICE_NAMES  = array of service names
+#  - SERVICE_CLASS  = class for service (ok if running, ko if not running)
+#  - SERVICE_STATUS = 0(service is running) 1(service not running)
+#  - SERVICE_PID    = PID of servicd
+#
 function print_services()
 {
-	echo '<div>'
-	local step=0
+	local NUM_SERVICES=0
+	local SERVICE_NAMES=()
+	local SERVICE_CLASS=()
+	local SERVICE_STATUS=()
+	local SERVICE_PID=()
 	for service in ${SERVICES_PIDS}
 	do
 		name=${service%%:*}
 		pid_file=${service##*:}
+		SERVICE_NAMES[${NUM_SERVICES}]="${name}"
 		PID_RUN=0
 		if [ -e ${pid_file} ]
 		then
-			parse_pidstatus $(cat ${pid_file})
+			SERVICE_PID[${NUM_SERVICES}]=$(<${pid_file})
+			parse_pidstatus ${SERVICE_PID[${NUM_SERVICES}]}
+		else
+			SERVICE_PID[${NUM_SERVICES}]=0
 		fi
+		SERVICE_STATUS[${NUM_SERVICES}]=${PID_RUN}
 		if [ ${PID_RUN} -eq 0 ]
 		then
-			class="ok"
+			SERVICE_CLASS[${NUM_SERVICES}]="ok"
 		else
-			class="ko"
+			SERVICE_CLASS[${NUM_SERVICES}]="ko"
 		fi
-		if [ ${step} -eq 0 ]
-		then
-			step=1
-			echo "<div><span class='${class}'>${name}</span>"
-		else
-			step=0
-			echo "<span class='${class}'>${name}</span></div>"
-		fi
+		NUM_SERVICES=$(( NUM_SERVICES+1 ))
 	done
-	echo '</div>'
+	source  "templates/services.sh"
 }
 
+
+# 
+# Display system Load averages
+# Templates:
+#  - templates/load.sh
+# Inout Config variables:
+#  - LOAD_MIN = minimum value of load to show with class=ok
+#  - LOAD_MAX = maximum value of load to show with class=ok
+#  (will use class=normal otherwise)
+# Output Template variables:
+#  - AVG_1        = last minute load average
+#  - AVG_1_CLASS  = class to be used for last minute
+#  - AVG_5        = last 5 minutes load average
+#  - AVG_5_CLASS  = class to be used for last 5 minutes
+#  - AVG_15       = last 15 minutes load average
+#  - AVG_15_CLASS = class to be used for last 15 minutes
+#
 function print_load()
 {
 	parse_loadavg
-	local class_1m="normal"
-	local class_5m="normal"
-	local class_15m="normal"
-	test ${AVG_1%%.*} -gt ${LOAD_MAX} && class_1m="ko"
-	test ${AVG_1%%.*} -lt ${LOAD_MIN} && class_1m="ok"
-	test ${AVG_5%%.*} -gt ${LOAD_MAX} && class_5m="ko"
-	test ${AVG_5%%.*} -lt ${LOAD_MIN} && class_5m="ok"
-	test ${AVG_15%%.*} -gt ${LOAD_MAX} && class_15m="ko"
-	test ${AVG_15%%.*} -lt ${LOAD_MIN} && class_15m="ok"
-
-	echo '<div><div>Load average: </div>'
-	echo '<div><span class="'${class_1m}'">'${AVG_1}'(1min)</span></div>'
-	echo '<div><span class="'${class_5m}'">'${AVG_5}'(5min)</span></div>'
-	echo '<div><span class="'${class_15m}'">'${AVG_15}'(15min)</span></div>'
+	local AVG_1_CLASS="normal"
+	local AVG_5_CLASS="normal"
+	local AVG_15_CLASS="normal"
+	test ${AVG_1%%.*} -gt ${LOAD_MAX} && AVG_1_CLASS="ko"
+	test ${AVG_1%%.*} -lt ${LOAD_MIN} && AVG_1_CLASS="ok"
+	test ${AVG_5%%.*} -gt ${LOAD_MAX} && AVG_5_CLASS="ko"
+	test ${AVG_5%%.*} -lt ${LOAD_MIN} && AVG_5_CLASS="ok"
+	test ${AVG_15%%.*} -gt ${LOAD_MAX} && AVG_15_CLASS="ko"
+	test ${AVG_15%%.*} -lt ${LOAD_MIN} && AVG_15_CLASS="ok"
+	source "templates/load.sh"
 }
 
+# 
+# Display RAM status
+# Templates:
+#  - templates/ram.sh 
+# Inout Config variables:
+#  - MEMORY_LIMIT = % of minimum free RAM above which the "ok" class is used.
+#  - SWAP_LIMIT = % of minimum free SWAP above which the "ok" class is used.
+# Output Template variables:
+#  - RAM_FREE_PERC = percentage of free RAM
+#  - SWAP_FREE_PERC = percentage of free SWAP
+#  - RAM_CLASS = class to use for RAM (ok if <= limit, ko if > limit)
+#  - SWAP_CLASS = class to use for SWAP (ok if <= limit, ko if > limit)
+#  - RAM_FREE_MB = free megabytes of ram (as real number)
+#  - RAM_TOT_MB  = total megabytes of ram (as real number)
+#  - RAM_FREE_GB = free gigabytes of ram (as real number)
+#  - RAM_TOT_GB  = total gigabytes of ram (as real number)
+#  - SWAP_FREE_MB = free megabytes of swap (as real number)
+#  - SWAP_TOT_MB  = total megabytes of swap (as real number)
+#  - SWAP_FREE_GB = free gigabytes of swap (as real number)
+#  - SWAP_TOT_GB  = total gigabytes of swap (as real number)
 function print_ram()
 {
 	parse_meminfo
-	echo '<div><div>RAM memory:</div>'
-	let mem_per=$(( ${MEM_AVA} * 100 /${MEM_TOT} ))
-	if [ ${mem_per} -gt ${MEMORY_LIMIT} ]
+	local RAM_FREE_PERC=$(( ${MEM_AVA} * 100 /${MEM_TOT} ))
+	if [ ${RAM_FREE_PERC} -lt ${MEMORY_LIMIT} ]
 	then
-		class="ok"
+		RAM_CLASS="ko"
 	else
-		class="ko"
+		RAM_CLASS="ok"
 	fi
-	echo '<div class="'${class}'"><span>'$(( MEM_AVA/1024/1024 )).$(( MEM_AVA/1024%1024/10 ))/$(( MEM_TOT/1024/1024 )).$(( MEM_TOT/1024%1024/10 ))'Gb</span></div>'
-	echo '<div class="'${class}'"><span>'${mem_per}'% free</span></div>' 
-	echo '</div>'
+	local SWAP_FREE_PERC=$(( ${SWAP_FRE} * 100 /${SWAP_TOT} ))
+	if [ ${SWAP_FREE_PERC} -lt ${SWAP_LIMIT} ]
+	then
+		SWAP_CLASS="ko"
+	else
+		SWAP_CLASS="ok"
+	fi
+	RAM_FREE_MB=$(( MEM_AVA/1024 )).$(( MEM_AVA%1024/10 ))
+	RAM_TOT_MB=$(( MEM_TOT/1024 )).$(( MEM_TOT%1024/10 ))
+	RAM_FREE_GB=$(( MEM_AVA/1024/1024 )).$(( MEM_AVA/1024%1024/10 ))
+	RAM_TOT_GB=$(( MEM_TOT/1024/1024 )).$(( MEM_TOT/1024%1024/10 ))
+	SWAP_FREE_MB=$(( SWAP_FRE/1024 )).$(( SWAP_FRE%1024/10 ))
+	SWAP_TOT_MB=$(( SWAP_TOT/1024 )).$(( SWAP_TOT%1024/10 ))
+	SWAP_FREE_GB=$(( SWAP_FRE/1024/1024 )).$(( SWAP_FRE/1024%1024/10 ))
+	SWAP_TOT_GB=$(( SWAP_TOT/1024/1024 )).$(( SWAP_TOT/1024%1024/10 ))
+
+	source "templates/ram.sh"
 }
 
 # Main HTML output.
 # This will be incorporated into the dashboard with an AJAX GET, so there is no need to output a fully formed HTML with header, body, etc.
 # The following is the bare minimum needed for this output to be properly processed by the web server and the browser, including the needed CSS.
-# For semplicity, this script uses the same site.css used by the dashboard, so all you need is to put your CSS in there.
 echo "Content-type: text/html"
 echo ""
-echo '<link rel="stylesheet" href="'${BASE_UR}'site.css?ver=8"/>'
+echo '<link rel="stylesheet" href="'${BASE_UR}'monitor.css?ver=8"/>'
 
 # Detect how we are called (our script name) and decide which output configuration to generate
 # based on the PAGES configuration variable
