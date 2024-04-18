@@ -1,4 +1,18 @@
-echo '<div><div>Load average: </div>'
-echo '<div><span class="'${AVG_1_CLASS}'">'${AVG_1}'(1min)</span></div>'
-echo '<div><span class="'${AVG_5_CLASS}'">'${AVG_5}'(5min)</span></div>'
-echo '<div><span class="'${AVG_15_CLASS}'">'${AVG_15}'(15min)</span></div>'
+
+echo "<div class='monitor_title'>Load average:</div>"
+
+echo "<table>"
+echo "<tr>"
+echo "<td><span>1 min: ${AVG_1}</span></td>"
+echo "<td><span  class='${AVG_1_CLASS}'></span></td>"
+echo "</tr>"
+echo "<tr>"
+echo "<td><span>5 min: ${AVG_5}</span></td>"
+echo "<td><span  class='${AVG_5_CLASS}'></span></td>"
+echo "</tr>"
+echo "<tr>"
+echo "<td><span>15 min: ${AVG_15}</span></td>"
+echo "<td><span  class='${AVG_15_CLASS}'></span></td>"
+echo "</tr>"
+echo "</table>"
+

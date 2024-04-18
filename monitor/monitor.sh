@@ -188,6 +188,19 @@ function connectivity_test()
 	fi
 }
 
+#
+# Print a template enclosed in common HTML/CSS
+# Input:
+# - 1: template name
+#
+function print_template()
+{
+	local TEMPLATE=$1
+	echo "<div class='monitor_box'>"
+	source "templates/${TEMPLATE}.sh"
+	echo "</div>"
+}
+
 # 
 # Display connectivity status
 # Templates:
@@ -234,14 +247,14 @@ function print_connectivity()
 		fi
 		NUM_ISPS=$(( NUM_ISPS+1 ))
 	done
-	source "templates/connectivity.sh"
+	print_template "connectivity"
 }
 
 # 
 # Display ping status
 # Templates:
 #  - templates/ping.sh 
-# Inout Config variables:
+# Input Config variables:
 #  - PINGS = list of hosts to ping = name:destination name:destination ...
 # Output Template variables:
 #  - PING_NUM     = number of total hosts (arrays size)
@@ -276,7 +289,7 @@ function print_pings()
 		PING_RTT_MIN[${PING_NUM}]=${RTT_MIN}
 		PING_NUM=$(( PING_NUM+1 ))
 	done
-	source "templates/ping.sh"
+	print_template "ping"
 }
 
 # 
@@ -345,7 +358,7 @@ function print_mounts()
 		fi
 		NUM_MOUNTS=$(( NUM_MOUNTS+1 ))
 	done
-	source "templates/mounts.sh"
+	print_template "mounts"
 }
 
 # 
@@ -390,7 +403,7 @@ function print_services()
 		fi
 		NUM_SERVICES=$(( NUM_SERVICES+1 ))
 	done
-	source  "templates/services.sh"
+	print_template "services"
 }
 
 
@@ -401,7 +414,7 @@ function print_services()
 # Inout Config variables:
 #  - LOAD_MIN = minimum value of load to show with class=ok
 #  - LOAD_MAX = maximum value of load to show with class=ok
-#  (will use class=normal otherwise)
+#  (will use class=avg otherwise)
 # Output Template variables:
 #  - AVG_1        = last minute load average
 #  - AVG_1_CLASS  = class to be used for last minute
@@ -413,16 +426,16 @@ function print_services()
 function print_load()
 {
 	parse_loadavg
-	local AVG_1_CLASS="normal"
-	local AVG_5_CLASS="normal"
-	local AVG_15_CLASS="normal"
+	local AVG_1_CLASS="avg"
+	local AVG_5_CLASS="avg"
+	local AVG_15_CLASS="avg"
 	test ${AVG_1%%.*} -gt ${LOAD_MAX} && AVG_1_CLASS="ko"
 	test ${AVG_1%%.*} -lt ${LOAD_MIN} && AVG_1_CLASS="ok"
 	test ${AVG_5%%.*} -gt ${LOAD_MAX} && AVG_5_CLASS="ko"
 	test ${AVG_5%%.*} -lt ${LOAD_MIN} && AVG_5_CLASS="ok"
 	test ${AVG_15%%.*} -gt ${LOAD_MAX} && AVG_15_CLASS="ko"
 	test ${AVG_15%%.*} -lt ${LOAD_MIN} && AVG_15_CLASS="ok"
-	source "templates/load.sh"
+	print_template "load"
 }
 
 # 
@@ -471,7 +484,7 @@ function print_ram()
 	SWAP_FREE_GB=$(( SWAP_FRE/1024/1024 )).$(( SWAP_FRE/1024%1024/10 ))
 	SWAP_TOT_GB=$(( SWAP_TOT/1024/1024 )).$(( SWAP_TOT/1024%1024/10 ))
 
-	source "templates/ram.sh"
+	print_template "ram"
 }
 
 # Main HTML output.

@@ -1,22 +1,25 @@
 
-echo '<div>'
-
+echo "<div class='monitor_title'>Services status:</div>"
+echo "<table>"
 local step=0
 local i=0
 while [ ${i} -lt ${NUM_SERVICES} ]
 do
 	if [ ${step} -eq 0 ]
 	then
-		pre="<div>"
+		pre="<tr>"
 		post=
 		step=1
 	else
 		pre=
-		post="</div>"
+		post="</tr>"
 		step=0
 	fi
-	echo "${pre}<span class='${SERVICE_CLASS[${i}]}'>${SERVICE_NAMES[${i}]}</span><span class='normal'>(${SERVICE_PID[${i}]})</span>${post}"
+	echo ${pre}
+	echo "<td><span>${SERVICE_NAMES[${i}]}(${SERVICE_PID[${i}]})</span></td>"
+	echo "<td><span class='${SERVICE_CLASS[${i}]}'></span></td>"
+	echo ${post}
 	i=$(( i+1 ))
 done
+echo "</table>"
 
-echo '</div>'

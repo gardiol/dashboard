@@ -68,7 +68,7 @@ $(window).on('load', function(){
 			for ( let i = 0; i < row.content.length; i++ ){
 				let item = row.content[i];
 				let container = $('<div class="contained ' + item.style + '"></div>');
-				let text = item.text != "" ? $('<p>' + item.text + '</p>' ) : null;
+				let text = item.text ? $('<p>' + item.text + '</p>' ) : null;
 				// Is this an item with a link?
 				if ( item.link ) {
 					let img = item.img != "" ? $('<img src="' + item.img + '" />' ) : null;

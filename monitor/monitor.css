@@ -1,13 +1,44 @@
 
 .ok { 
-	color: green; 
+	margin-bottom: -0.2em;
+	display: inline-block;
+	border-radius: 0.5em;
+	background-color: green;
+	width: 1em;
+	height: 1em;
+}
+
+.avg {
+	margin-bottom: -0.2em;
+	display: inline-block;
+	border-radius: 0.5em;
+	background-color: yellow;
+	width: 1em;
+	height: 1em;
 }
 
 .ko { 
-	color: red; 
+	margin-bottom: -0.2em;
+	display: inline-block;
+	border-radius: 0.5em;
+	background-color: red;
+	width: 1em;
+	height: 1em;
 }
 
-.normal {
+div.monitor_box {
+	padding: 0.2em;
+	background: lightyellow;
+	color: black;
+	border-radius: 0.5em;
+}
+
+.monitor_title {
+	font-size: small;
 	color: darkred;
+}
+
+div.monitor_box > table {
+	width: 100%;
 }
 

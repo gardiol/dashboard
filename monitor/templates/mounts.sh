@@ -1,10 +1,14 @@
 
-echo '<div><div>Mounts:</div>'
+echo "<div class='monitor_title'>Mounts:</div>"
+echo "<table>"
 i=0
 while [ ${i} -lt ${NUM_MOUNTS} ]
 do
-	echo "<div class='${MOUNT_CLASS[${i}]}'>${MOUNT_NAME[${i}]}: ${MOUNT_PER[${i}]}%</div>"
-	
+	echo "<tr>"
+	echo "<td><span>${MOUNT_NAME[${i}]}: ${MOUNT_PER[${i}]}%</span></td>"
+	echo "<td><span class='${MOUNT_CLASS[${i}]}'></span></td>"
+	echo "</tr>"
 	i=$(( i+1 ))
 done
-echo '</div>'
+echo "</table>"
+

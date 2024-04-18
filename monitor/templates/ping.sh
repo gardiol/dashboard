@@ -1,12 +1,14 @@
 
-echo "<div>"
-echo "<div><div class=''>Devices:</div>"
-
+echo "<div class='monitor_title'>Devices:</div>"
+echo "<table>"
 N=0
 while [ ${N} -lt ${PING_NUM} ]
 do
-	echo "<div><span class='${PING_CLASS[${N}]}'>${PING_HOSTS[${N}]}</span></div>"
+	echo "<tr>"
+	echo "<td><span>${PING_HOSTS[${N}]}</span></td>"
+	echo "<td><span class='${PING_CLASS[${N}]}'></span></td>"
+	echo "</tr>"
 	N=$(( N+1 ))
 done
 
-echo "</div>"
+echo "</table>"
