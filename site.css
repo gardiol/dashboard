@@ -1,10 +1,18 @@
 
 body {
 	background: black;
+	margin-bottom: 1em;
 }
 
 a {
 	color: darkred;
+}
+
+div.container > p > img {
+	width: 1.5em;
+	height: 0.6em;
+	padding-left: 0.3em;
+	padding-right: 0.3em;
 }
 
 div.header > span {
@@ -76,9 +84,8 @@ div.header > span {
 	width: 10em;
 }
 
-.container > p {
+.container > p > span {
 	color: white;
-	border-top: 1px solid white;
 }
 
 .runner {

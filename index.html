@@ -52,8 +52,9 @@ $(window).on('load', function(){
 		for (let r = 0; r < data.content.length; r++ ){
 			let row = data.content[r];
 			let box = $('<div class="container"></div>');
+			let unfold_img = row.foldable ? '<img src="images/downarrow.png" />' : "";
 			// an empty title means no foldable is possible
-			let box_title = row.title != "" ? $('<p>' + row.title + '</p>') : null;
+			let box_title = row.title != "" ? $('<p>'+unfold_img+'<span>' + row.title + '</span>'+unfold_img+'</p>') : null;
 			if ( box_title ){
 				// a foldable row is folded by default
 				if ( row.foldable ){
