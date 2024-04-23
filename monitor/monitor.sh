@@ -386,7 +386,7 @@ function print_services()
 		name=${service%%:*}
 		pid_file=${service##*:}
 		SERVICE_NAMES[${NUM_SERVICES}]="${name}"
-		PID_RUN=0
+		PID_RUN=1
 		if [ -e ${pid_file} ]
 		then
 			SERVICE_PID[${NUM_SERVICES}]=$(<${pid_file})
