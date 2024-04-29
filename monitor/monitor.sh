@@ -205,7 +205,7 @@ function print_template()
 # Display connectivity status
 # Templates:
 #  - templates/connectivity.sh 
-# Inout Config variables:
+# Input Config variables:
 #  - UPLINKS = array of uplink ISPs in the format: name:gateway:destination name:gateway:destination ...
 # Output Template variables:
 #  - NUM_ISPS        = number of total isps (arrays size)
@@ -292,11 +292,64 @@ function print_pings()
 	print_template "ping"
 }
 
+#
+# Print TOP information
+# Templates:
+#  - templates/top.sh 
+# Input Config variables:
+#  - TOP_CPU_LIMIT = value in % above which the task will be KO instead of OK
+#  - TOP_TASKS_LIMIT   = maximum number of tasks to parse  (unset or for unlimited)
+# Output Template variables:
+# - NUM_TASKS     = number or tasks (following are all arrays)
+# - TASKS_CPU_PER = array of sorted %cpu
+# - TASKS_MEM_PER = array of sorted %mem
+# - TASKS_PID     = array of pid of task
+# - TASKS_CMD     = array of task executable
+# - TASKS_CLASS   = array of classes
+#
+function print_top()
+{
+	local NUM_TASKS=0
+	local TASKS_CPU_PER=()
+	local TASKS_MEM_PER=()
+	local TASKS_PID=()
+	local TASKS_CMD=()
+	local TASKS_CLASS=()
+	local row=
+	if [ -z ${TOP_TASKS_LIMIT} -o ${TOP_TASKS_LIMIT} -eq 0 ]
+	then
+		TOP_TASKS_LIMIT=99999
+	fi
+	if [ -z ${TOP_CPU_LIMIT} ]
+	then
+		TOP_CPU_LIMIT=100
+	fi
+	while read -r row
+	do
+		local task=(${row})
+		if [ ${NUM_TASKS} -lt ${TOP_TASKS_LIMIT} ]
+		then
+			TASKS_CPU_PER[${NUM_TASKS}]=${task[0]}
+			local cpu_integer=${TASKS_CPU_PER[${NUM_TASKS}]%%.*}
+			if [ ${cpu_integer} -gt ${TOP_CPU_LIMIT} ]
+				TASKS_CLASS[${NUM_TASKS}]="ko"
+			then
+				TASKS_CLASS[${NUM_TASKS}]="ok"
+			fi
+			TASKS_MEM_PER[${NUM_TASKS}]=${task[1]}
+			TASKS_PID[${NUM_TASKS}]=${task[2]}
+			TASKS_CMD[${NUM_TASKS}]=${task[3]}
+			NUM_TASKS=$(( NUM_TASKS+1 ))
+		fi
+	done < <(ps -e --no-headers -o %cpu,%mem,pid,comm --sort -%cpu -ww)
+	print_template "top"
+}
+
 # 
 # Display mountpoints and filesystems data
 # Templates:
 #  - templates/mounts.sh
-# Inout Config variables:
+# Input Config variables:
 #  - MOUNTPOINTS      = list of mounts, format: name:mountpoint name:mountpoint ...
 #  - FILESYSTEM_LIMIT = percentage above which "ko" class is used instead of "ok" class
 # Output Template variables:
@@ -365,7 +418,7 @@ function print_mounts()
 # Display services/processes status
 # Templates:
 #  - templates/services.sh
-# Inout Config variables:
+# Input Config variables:
 #  - SERVICES_PIDS = list of services, format: name:pidfile name:pidfile ...
 # Output Template variables:
 #  - NUM_SERVICES   = number of services (size of arrays)
@@ -411,7 +464,7 @@ function print_services()
 # Display system Load averages
 # Templates:
 #  - templates/load.sh
-# Inout Config variables:
+# Input Config variables:
 #  - LOAD_MIN = minimum value of load to show with class=ok
 #  - LOAD_MAX = maximum value of load to show with class=ok
 #  (will use class=avg otherwise)
@@ -442,7 +495,7 @@ function print_load()
 # Display RAM status
 # Templates:
 #  - templates/ram.sh 
-# Inout Config variables:
+# Input Config variables:
 #  - MEMORY_LIMIT = % of minimum free RAM above which the "ok" class is used.
 #  - SWAP_LIMIT = % of minimum free SWAP above which the "ok" class is used.
 # Output Template variables:

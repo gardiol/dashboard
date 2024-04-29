@@ -16,7 +16,7 @@ do
 		step=0
 	fi
 	echo ${pre}
-	echo "<td><span>${SERVICE_NAMES[${i}]}(${SERVICE_PID[${i}]})</span></td>"
+	echo "<td><span>${SERVICE_NAMES[${i}]}</span></td>"
 	echo "<td><span class='${SERVICE_CLASS[${i}]}'></span></td>"
 	echo ${post}
 	i=$(( i+1 ))
