@@ -306,6 +306,7 @@ function print_pings()
 # - TASKS_PID     = array of pid of task
 # - TASKS_CMD     = array of task executable
 # - TASKS_CLASS   = array of classes
+# - TASKS_USER    = array of users
 #
 function print_top()
 {
@@ -337,11 +338,12 @@ function print_top()
 				TASKS_CLASS[${NUM_TASKS}]="ok"
 			fi
 			TASKS_MEM_PER[${NUM_TASKS}]=${task[1]}
-			TASKS_PID[${NUM_TASKS}]=${task[2]}
-			TASKS_CMD[${NUM_TASKS}]=${task[3]}
+			TASKS_USER[${NUM_TASKS}]=${task[2]}
+			TASKS_PID[${NUM_TASKS}]=${task[3]}
+			TASKS_CMD[${NUM_TASKS}]=${task[4]}
 			NUM_TASKS=$(( NUM_TASKS+1 ))
 		fi
-	done < <(ps -e --no-headers -o %cpu,%mem,pid,comm --sort -%cpu -ww)
+	done < <(ps -e --no-headers -o %cpu,%mem,user,pid,comm --sort -%cpu -ww)
 	print_template "top"
 }
 

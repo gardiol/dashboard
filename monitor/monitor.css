@@ -8,6 +8,10 @@
 	height: 1em;
 }
 
+.ok_color {
+	color: green;
+}
+
 .avg {
 	margin-bottom: -0.2em;
 	display: inline-block;
@@ -26,6 +30,10 @@
 	height: 1em;
 }
 
+.ko_color {
+	color: red;
+}
+
 div.monitor_box {
 	padding: 0.2em;
 	background: lightyellow;
@@ -36,6 +44,10 @@ div.monitor_box {
 .monitor_title {
 	font-size: small;
 	color: darkred;
+}
+
+.monitor_extra {
+        font-size: smaller;
 }
 
 div.monitor_box > table {

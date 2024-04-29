@@ -19,14 +19,6 @@ div.header > span {
 	color: white;
 }
 
-.ok { 
-	color: green; 
-}
-
-.ko { 
-	color: red; 
-}
-
 .box {
 	width: 20em;
 	height: 21em;
