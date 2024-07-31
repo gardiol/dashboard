@@ -154,11 +154,12 @@ function ping_test()
 {
 	local dest=$1
 	local npings=$2
-	local ping_out=$(ping -n -q -c ${npings} -W 1 ${dest} 2> /dev/null)
+	local ping_out # setting local ping_out = $(...) will result in $? always to be 0!
+	ping_out=$(ping -n -q -c ${npings} -W 1 ${dest} 2> /dev/null)
+	export PING_OK=$?
 	local tmp=${ping_out##*tt min/avg/max/mdev =}
 	tmp=${tmp%[[:blank:]]ms*}
 	tmp=(${tmp//\// })
-	export PING_OK=$?
 	export RTT_MIN=${tmp[0]}
 	export RTT_AVG=${tmp[1]}
 	export RTT_MAX=${tmp[2]}
@@ -276,7 +277,7 @@ function print_pings()
 	for p in ${PINGS}
 	do
 		PING_HOSTS[${PING_NUM}]=${p%:*}
-		ping_test ${p#*:}
+		ping_test ${p#*:} 1
 		PING_STATUS[${PING_NUM}]=${PING_OK}
 		if [ ${PING_OK} -eq 0 ]
 		then 
@@ -445,7 +446,12 @@ function print_services()
 		if [ -e ${pid_file} ]
 		then
 			SERVICE_PID[${NUM_SERVICES}]=$(<${pid_file})
-			parse_pidstatus ${SERVICE_PID[${NUM_SERVICES}]}
+			if [ -n "${SERVICE_PID[${NUM_SERVICES}]}" ]
+			then
+				parse_pidstatus ${SERVICE_PID[${NUM_SERVICES}]}
+			else
+				SERVICE_PID[${NUM_SERVICES}]=0
+			fi
 		else
 			SERVICE_PID[${NUM_SERVICES}]=0
 		fi
