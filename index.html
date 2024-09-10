@@ -8,7 +8,7 @@
     <title></title>
     <meta charset="UTF-8"/>
     <link rel="stylesheet" href="index.css?ver=6"/>
-    <link rel="stylesheet" href="site.css?ver=9"/>
+    <link rel="stylesheet" href="site.css?ver=10"/>
     <script src="js/jquery-3.7.1.min.js" language="javascript"></script>
 </head>
 <body>
@@ -28,6 +28,7 @@ function exec_get( url, target ){
 	})
 	.fail( function() {
 		$(target).html("--load error--")
+		window.location.reload(true);
 	});
 }
 
@@ -95,9 +96,10 @@ $(window).on('load', function(){
     		// is there a footer?
 		if ( data.footer ){
 			let link = data.footer.link ? $('<a href="'+ data.footer.link +'">') :  null;
+			let style = data.footer.style ? data.footer.style : "footer";
 			let text = data.footer.text ? $('<span>' + data.footer.text + '</span>') : null;
 			let l=data.footer.link;
-			let footer = $('<div class="footer"></div>');
+			let footer = $('<div class="' + style + '"></div>');
 			if ( text ){
 				if ( link ){
 					link.append( text );
@@ -132,8 +134,10 @@ $(window).on('load', function(){
 				$('#content').fadeIn( { 'duration':100 } );
       			}
     		});
-  	}, 'json').fail( function(){
-		alert("Missing 'site.json'");
+  	}, 'json')
+	.fail( function(){
+		alert("Missing 'site.json'. Authentication expired?");
+		window.location.reload(true);
 	});
 });
 </script>

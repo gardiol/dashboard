@@ -19,6 +19,15 @@ div.header > span {
 	color: white;
 }
 
+.footer-light {
+	background: beige;
+	margin-left: auto;
+	margin-right: auto;
+	margin-top: 1em;
+	width: 20em;
+	padding: 0.5em;
+}
+
 .box {
 	width: 20em;
 	height: 21em;
@@ -98,3 +107,26 @@ div.header > span {
 	margin: 0px;
 	font-size: 150%;
 }
+
+.box-inline {
+	width: 20em;
+	height: 4em;
+	background: beige;
+	margin: 1em;
+	padding: 0.5em;
+	text-align: left;
+	box-shadow: 0.2em 0.2em darkred;
+}
+
+.box-inline > a > p {
+	height: 1em;
+	margin-left: 5em;
+	margin-top: -2em;
+	font-size: 150%;
+}
+
+.box-inline > a > img {
+	height: 4em;
+	width: 4em;
+}
+
