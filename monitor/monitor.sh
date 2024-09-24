@@ -1,5 +1,11 @@
 #!/bin/bash
 
+declare -A TEMPLATE_COLS
+declare -A TEMPLATE_TITLE
+declare -A SERVICES_PIDS
+declare -A MOUNTPOINTS
+declare -A WIDGETS
+
 source monitor.conf
 
 ######
@@ -191,12 +197,21 @@ function connectivity_test()
 
 #
 # Print a template enclosed in common HTML/CSS
-# Input:
-# - 1: template name
+# Args:
+#  - 1: template name
+#  - 2: config key
+# Input Config Variables:
+#  - TEMPLATE_COLS  = conlumns for this config_key
+#  - TEMPLATE_TITLE = title to display
+# Output Template variables:
+#  - COLUMNS = number of columns
 #
 function print_template()
 {
+	[ -z ${TEMPLATE_COLS[$2]} ] ${TEMPLATE_COLS[$2]}=1
 	local TEMPLATE=$1
+	local COLUMNS=${TEMPLATE_COLS[$2]}
+	local TITLE=${TEMPLATE_TITLE[$2]}
 	echo "<div class='monitor_box'>"
 	source "templates/${TEMPLATE}.sh"
 	echo "</div>"
@@ -248,11 +263,13 @@ function print_connectivity()
 		fi
 		NUM_ISPS=$(( NUM_ISPS+1 ))
 	done
-	print_template "connectivity"
+	print_template "connectivity" $1
 }
 
 # 
 # Display ping status
+# Args:
+#  - $1: config key
 # Templates:
 #  - templates/ping.sh 
 # Input Config variables:
@@ -274,7 +291,8 @@ function print_pings()
 	local PING_RTT_MIN=()
 	local PING_RTT_AVG=()
 	local PING_RTT_MAX=()
-	for p in ${PINGS}
+	[ -z ${PINGS[$1]} ] && PINGS[$1]=${PINGS}
+	for p in ${PINGS[$1]}
 	do
 		PING_HOSTS[${PING_NUM}]=${p%:*}
 		ping_test ${p#*:} 1
@@ -290,11 +308,13 @@ function print_pings()
 		PING_RTT_MIN[${PING_NUM}]=${RTT_MIN}
 		PING_NUM=$(( PING_NUM+1 ))
 	done
-	print_template "ping"
+	print_template "ping" $1
 }
 
 #
 # Print TOP information
+# Args:
+#  - $1: config key
 # Templates:
 #  - templates/top.sh 
 # Input Config variables:
@@ -318,7 +338,8 @@ function print_top()
 	local TASKS_CMD=()
 	local TASKS_CLASS=()
 	local row=
-	if [ -z ${TOP_TASKS_LIMIT} -o ${TOP_TASKS_LIMIT} -eq 0 ]
+	[ -z ${TOP_TASKS_LIMIT[$1]} ] && TOP_TASKS_LIMIT[$1]=${TOP_TASKS_LIMIT}
+	if [ -z ${TOP_TASKS_LIMIT[$1]} -o ${TOP_TASKS_LIMIT[$1]} -eq 0 ]
 	then
 		TOP_TASKS_LIMIT=99999
 	fi
@@ -329,7 +350,7 @@ function print_top()
 	while read -r row
 	do
 		local task=(${row})
-		if [ ${NUM_TASKS} -lt ${TOP_TASKS_LIMIT} ]
+		if [ ${NUM_TASKS} -lt ${TOP_TASKS_LIMIT[$1]} ]
 		then
 			TASKS_CPU_PER[${NUM_TASKS}]=${task[0]}
 			local cpu_integer=${TASKS_CPU_PER[${NUM_TASKS}]%%.*}
@@ -345,11 +366,13 @@ function print_top()
 			NUM_TASKS=$(( NUM_TASKS+1 ))
 		fi
 	done < <(ps -e --no-headers -o %cpu,%mem,user,pid,comm --sort -%cpu -ww)
-	print_template "top"
+	print_template "top" $1
 }
 
 # 
 # Display mountpoints and filesystems data
+# Args:
+#  - $1: config key
 # Templates:
 #  - templates/mounts.sh
 # Input Config variables:
@@ -388,7 +411,8 @@ function print_mounts()
 	local MOUNT_USE_GB=()
 	local MOUNT_FRE_GB=()
 
-	for mp in ${MOUNTPOINTS}
+	[ -z ${MOUNTPOINTS[$1]} ] && MOUNTPOINTS[$1]=${MOUNTPOINTS}
+	for mp in ${MOUNTPOINTS[$1]}
 	do
 		MOUNT_NAME[${NUM_MOUNTS}]=${mp%%:*}
 		parse_mountpoint "${mp##*:}"
@@ -414,21 +438,25 @@ function print_mounts()
 		fi
 		NUM_MOUNTS=$(( NUM_MOUNTS+1 ))
 	done
-	print_template "mounts"
+	print_template "mounts" $1
 }
 
 # 
 # Display services/processes status
+# Args:
+#  - $1: config key
 # Templates:
 #  - templates/services.sh
 # Input Config variables:
-#  - SERVICES_PIDS = list of services, format: name:pidfile name:pidfile ...
+#  - SERVICES_PIDS = list of services, format: name:pidfile name:pidfile ... Defaults to $SERVICES_PIDS if SERVICES_PIDS[config_key] is missing
+#  - SERVICES_COLS = how many columns to split the services (number)
 # Output Template variables:
+#  - COLUMNS        = number of columns to split on
 #  - NUM_SERVICES   = number of services (size of arrays)
 #  - SERVICE_NAMES  = array of service names
 #  - SERVICE_CLASS  = class for service (ok if running, ko if not running)
 #  - SERVICE_STATUS = 0(service is running) 1(service not running)
-#  - SERVICE_PID    = PID of servicd
+#  - SERVICE_PID    = PID of service
 #
 function print_services()
 {
@@ -437,7 +465,8 @@ function print_services()
 	local SERVICE_CLASS=()
 	local SERVICE_STATUS=()
 	local SERVICE_PID=()
-	for service in ${SERVICES_PIDS}
+	[ -z ${SERVICES_PIDS[$1]} ] && SERVICES_PIDS[$1]=${SERVICES_PIDS}
+	for service in ${SERVICES_PIDS[$1]}
 	do
 		name=${service%%:*}
 		pid_file=${service##*:}
@@ -464,7 +493,7 @@ function print_services()
 		fi
 		NUM_SERVICES=$(( NUM_SERVICES+1 ))
 	done
-	print_template "services"
+	print_template "services" $1
 }
 
 
@@ -496,7 +525,7 @@ function print_load()
 	test ${AVG_5%%.*} -lt ${LOAD_MIN} && AVG_5_CLASS="ok"
 	test ${AVG_15%%.*} -gt ${LOAD_MAX} && AVG_15_CLASS="ko"
 	test ${AVG_15%%.*} -lt ${LOAD_MIN} && AVG_15_CLASS="ok"
-	print_template "load"
+	print_template "load" $1
 }
 
 # 
@@ -545,7 +574,7 @@ function print_ram()
 	SWAP_FREE_GB=$(( SWAP_FRE/1024/1024 )).$(( SWAP_FRE/1024%1024/10 ))
 	SWAP_TOT_GB=$(( SWAP_TOT/1024/1024 )).$(( SWAP_TOT/1024%1024/10 ))
 
-	print_template "ram"
+	print_template "ram" $1
 }
 
 # Main HTML output.
@@ -553,25 +582,42 @@ function print_ram()
 # The following is the bare minimum needed for this output to be properly processed by the web server and the browser, including the needed CSS.
 echo "Content-type: text/html"
 echo ""
-echo '<link rel="stylesheet" href="'${BASE_UR}'monitor.css?ver=8"/>'
+echo '<link rel="stylesheet" href="'${BASE_URL}'monitor.css?ver=1"/>'
 
 # Detect how we are called (our script name) and decide which output configuration to generate
 # based on the PAGES configuration variable
+#
+# The PAGES variable format is:
+# PAGES=("page1" "page2" ...)
+# the name must match the "page" GET parameter.
+#
+# Pages can be configured with the WIDGETS array:
+# WIDGETS["page1"]="widget1:config_key widget2:config_key ..."
+#
+# Where widget is the name of the item to display, and config_key is used to specify specific configurations for the item
+#
+#
 called_as=${0##*/}
-for p in ${PAGES}
-do
-	page=${p%%:*}
-	what=${p#*:}
-	if [ "${page}" = "${called_as}" ]
-	then
-		last_what=""
-		while [ "${what}" != "${last_what}" ]
-		do
-			item=${what%%:*}
-			print_${item}
-			last_what=${what}
-			what=${what#*:}
-		done
-	fi
-done
+selected_page=$1
+if [ "$REQUEST_METHOD" = "GET" ]
+then
+	page_enc=$(echo "$QUERY_STRING" | sed -n 's/^.*page=\([^&]*\).*$/\1/p')
+	selected_page=$(echo -e $(echo "$page_enc" | sed 's/+/ /g;s/%\(..\)/\\x\1/g;'))    # html decode
+fi
+
+if [ -n ${selected_page} ]
+then
+	for page in "${PAGES[@]}"
+	do
+		if [ "${page}" = "${selected_page}" ]
+		then
+			for widget in ${WIDGETS[$page]}
+			do
+				item=${widget%:*}
+				config_key=${widget#*:}
+				print_${item} ${config_key}
+			done
+		fi
+	done
+fi
 

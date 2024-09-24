@@ -1,19 +1,31 @@
 
-echo "<div class='monitor_title'>Services status:</div>"
+echo "<div class='monitor_title'>${TITLE}</div>"
 echo "<table>"
-local step=0
+local col=0
 local i=0
+local MAX_COLUMNS=$(( COLUMNS-1 ))
 while [ ${i} -lt ${NUM_SERVICES} ]
 do
-	if [ ${step} -eq 0 ]
+	if [ ${COLUMNS} -gt 1 ]
 	then
-		pre="<tr>"
-		post=
-		step=1
+		if [ ${col} -eq 0 ]
+		then
+			pre="<tr>"
+			post=
+			col=1
+		elif [ ${col} -ge ${MAX_COLUMNS} ]
+		then
+			pre=
+			post="</tr>"
+			col=0
+		else
+			pre=
+			post=
+			col=$(( col+1 ))
+		fi
 	else
-		pre=
+		pre="<tr>"
 		post="</tr>"
-		step=0
 	fi
 	echo ${pre}
 	echo "<td><span>${SERVICE_NAMES[${i}]}</span></td>"
