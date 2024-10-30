@@ -161,7 +161,7 @@ function ping_test()
 	local dest=$1
 	local npings=$2
 	local ping_out # setting local ping_out = $(...) will result in $? always to be 0!
-	ping_out=$(ping -n -q -c ${npings} -W 1 ${dest} 2> /dev/null)
+	ping_out=$(ping -n -q -c ${npings} -W 0.2 ${dest} 2> /dev/null)
 	export PING_OK=$?
 	local tmp=${ping_out##*tt min/avg/max/mdev =}
 	tmp=${tmp%[[:blank:]]ms*}
