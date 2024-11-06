@@ -3,6 +3,7 @@ i=0
 echo "<div class='monitor_title'>${TITLE}</div>"
 
 local MAX_COLUMNS=$(( COLUMNS-1 ))
+col=0
 
 echo "<table>"
 while [ ${i} -lt ${NUM_TASKS} ]

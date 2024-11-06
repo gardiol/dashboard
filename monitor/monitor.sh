@@ -208,7 +208,7 @@ function connectivity_test()
 #
 function print_template()
 {
-	[ -z ${TEMPLATE_COLS[$2]} ] ${TEMPLATE_COLS[$2]}=1
+	test -z ${TEMPLATE_COLS[$2]} && ${TEMPLATE_COLS[$2]}=1
 	local TEMPLATE=$1
 	local COLUMNS=${TEMPLATE_COLS[$2]}
 	local TITLE=${TEMPLATE_TITLE[$2]}
@@ -411,7 +411,7 @@ function print_mounts()
 	local MOUNT_USE_GB=()
 	local MOUNT_FRE_GB=()
 
-	[ -z ${MOUNTPOINTS[$1]} ] && MOUNTPOINTS[$1]=${MOUNTPOINTS}
+	test "${MOUNTPOINTS[$1]}" = "" && MOUNTPOINTS[$1]=${MOUNTPOINTS}
 	for mp in ${MOUNTPOINTS[$1]}
 	do
 		MOUNT_NAME[${NUM_MOUNTS}]=${mp%%:*}
@@ -465,7 +465,7 @@ function print_services()
 	local SERVICE_CLASS=()
 	local SERVICE_STATUS=()
 	local SERVICE_PID=()
-	[ -z ${SERVICES_PIDS[$1]} ] && SERVICES_PIDS[$1]=${SERVICES_PIDS}
+	test "${SERVICES_PIDS[$1]}" = "" && SERVICES_PIDS[$1]=${SERVICES_PIDS}
 	for service in ${SERVICES_PIDS[$1]}
 	do
 		name=${service%%:*}

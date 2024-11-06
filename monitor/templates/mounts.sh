@@ -2,6 +2,7 @@
 echo "<div class='monitor_title'>${TITLE}</div>"
 echo "<table>"
 i=0
+col=0
 local MAX_COLUMNS=$(( COLUMNS-1 ))
 while [ ${i} -lt ${NUM_MOUNTS} ]
 do

@@ -4,6 +4,7 @@ echo "<div class='monitor_title'>${TITLE}</div>"
 local MAX_COLUMNS=$(( COLUMNS-1 ))
 echo "<table>"
 N=0
+col=0
 while [ ${N} -lt ${PING_NUM} ]
 do
 	if [ ${COLUMNS} -gt 1 ]

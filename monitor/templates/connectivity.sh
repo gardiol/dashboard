@@ -1,5 +1,6 @@
 
 i=0
+col=0
 echo "<div class='monitor_title'>${TITLE}</div>"
 
 echo "<table>"
