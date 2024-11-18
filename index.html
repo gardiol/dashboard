@@ -136,7 +136,6 @@ $(window).on('load', function(){
     		});
   	}, 'json')
 	.fail( function(){
-		alert("Missing 'site.json'. Authentication expired?");
 		window.location.reload(true);
 	});
 });
