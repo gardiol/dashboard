@@ -52,10 +52,11 @@ div.header > span {
 
 .small {
 	width: 7em;
-	height: 6em;
+	height: 7em;
 	background: orange;
 	margin: 1em;
 	padding: 0.5em;
+	padding-top: 1em;
 	text-align: center;
 	border-radius: 1em;
 	box-shadow: 0.2em 0.2em darkred;
@@ -67,8 +68,8 @@ div.header > span {
 }
 
 .small > a > img {
-	height: 4.5em;
-	width: 4.5em;
+	height: 5em;
+	width: 5em;
 }
 
 .link {
