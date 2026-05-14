@@ -16,6 +16,7 @@
 			font-family: sans-serif;
 			height: 100%;
 			margin: 0;
+			margin-bottom: 2em;
 			padding: 0;
 			width: 100%;
                 }
@@ -144,7 +145,7 @@
 						   :target="item.new_page ? '_blank' : '_self'">
 							<img x-show="item.img" :src="item.img">
 							<div x-show="item.run" x-init="item.run ? runner($el,item):null">
-								<img src="wait.png">
+								<img src="/wait.png">
 							</div>
 							<span x-show="item.text" x-text="item.text"></span>
 						</a>
