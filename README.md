@@ -2,7 +2,8 @@
 
 Written by Willy Gardiol - willy@gardiol.org
 
-Released under **GPL-v3** [[https://www.gnu.org/licenses/gpl-3.0.en.html]]
+Released under **GPL-v3** [link here](https://www.gnu.org/licenses/gpl-3.0.en.html)
+
 
 ## Introduction
 
@@ -11,21 +12,32 @@ This is a pretty simple and mostly static HTML+AlpineJS Dashboard for your web l
 The concept behind *Simple Dashboard* is to be nice to see, easy to customize and essential in it's funciton yet usable
 and functional.
 
-I choose the very lightweight but powerfull AlpineJS (https://alpinejs.dev) as base framework because i like it. 
-I was looking for something that did not require __any__ server-side setup beside a basic web-browser.
+What *Simple Dashboard* does not require, by design:
+- Docker or containers in any way (it's only a handful of static files)
+- PHP, NodeJS or any backend (it's only a handful of static files)
+- Complex installation (it's only *static* files)
 
-*Simple Dashboard* does not require docker or podman, does not require python or PIP, NodeJS, NPM or whatever. All you need is a static web server
-that can present an HTML page and some static content (images, javascript mostly). 
+What *Simple Dashboard* does not provide, by design:
+- Authentication (slap your Authelia, Authentic or HTTP authentication in front of it)
+- Specific integrations (KISS: integrate output from other endpoints)
+- Dynamic content (with the exception of periodic reload of other endpoints)
+- Web server or proxy (use NGINX, Apache, Caddy, whatever can serve static content)
 
-Optionally, you can check the **bash based** CGI monitor in the usb-folder *monitor*.
+What *Simple Dashboard* requires, by design:
+- A web server capable to serve static content
+- Manual editing (on the server) of one JSON file and/or one CSS file
 
-Simple Dashboard was born.
+In addition, in a separate subfolder in the repository, you can find also a set of 
+**bash based** CGI monitors that you can use, and even integrate in the dashboard,
+to monitor your server and services. This is totally optional and you can always 
+delete the sub-folder *monitor* to get rid of them.
+
 
 ## Functionalities
 
 The basic functions of Simple Dashboard are:
 - display links to services / pages with customizable styles and optional images and text
-- display the HTML output of external requests (like CGI or other pages) 
+- display the HTML output of external endpoints (like CGI or other pages) 
 - dynamically adapt to changes of configuration without the need to clear browser cache
 - organize services / pages by groups
 - collapsible (open / close) groups
@@ -43,7 +55,7 @@ Well, here is a [link](https://www.gardiol.org) to a small personal page.
 
 And here are a couple of screenshots:
 
-![Screenshot 1](screenshots/Screenshot_20260514_162950.png)
+![Screenshot 1](screenshots/Screenshot_20260514_163642.png)
 ![Screenshot 2](screenshots/Screenshot_20260514_163030.png)
 
 
@@ -62,6 +74,7 @@ The monitoring tools are provided as BASH CGIs, for that you need a webserver wi
 
 The dashboard is divided in a header, a body composed of rows of items and a footer.
 
+
 ## The Architecture
 
 The main *index.html* provide the basic HTML structure. You need to provide a *site.json* that describe the
@@ -72,12 +85,14 @@ Some stock (kinda of) images are provided under *images* folder, you will need t
 
 A few basic images are used by the *index.html* itself and they are all located in the same folder as index.html file itself.
 
+
 ## Basic Utilization
 
-Using Simple Dashboard is a matter of cloning the main repository (https://github.com/gardiol/dashboard.git) and creating your own *site.json*. Additionally you might
+Using Simple Dashboard is a matter of cloning the main repository [here](https://github.com/gardiol/dashboard.git) and creating your own *site.json*. Additionally you might
 want to provide your **favicon.png** and edit the **site.css** to your linkings.
 
 Let's see how to create your *site.json*.
+
 
 ### Site.JSON 
 
@@ -135,7 +150,6 @@ Note that each item can only have either **link** or **run** but not both.
 
 
 ### Styles
-
 
 Take a look inside *index.html*, there you will find all the CSS classes that you can modify in your *site.css* file, which will
 be loaded after the internal definition, and take precedence. In addition, you can specify the **style** attribute in the *site.json*
@@ -204,9 +218,11 @@ Each "page" of information is built on specific templates under the "monitor/tem
 require a **monitor.css** file located under the BASE_URL folder.
 
 
+
 ### List of possible monitors
 
 The following monitors are available, for each one it's usage is described.
+
 
 #### connectivity
 
@@ -221,6 +237,7 @@ Where:
 you can define as many ISPs as you have direct connection to. It is highly recomended to use IP and not hostnames, as the latter might be
 dependent on DNS working to resolve and are best checked with the __pings__ tests.
 
+
 #### pings
 
 Ping hosts, IPs or hostnames, to check if they are alive.
@@ -229,6 +246,7 @@ Ping hosts, IPs or hostnames, to check if they are alive.
 Where:
 - host1/2/3: name of host (for display purposes)
 - 10.70.43.x: ip or hostname to ping
+
 
 #### mounts
 
@@ -241,6 +259,7 @@ Where:
 - /data: actual mount point to monitor
 - FILESYSTEM_LIMIT: percentage over which it will be red or green
 
+
 #### services
 
 Print services status, green if they are up red otherwise. To check if a process is running, it's PID will be used and matched agains /proc/<pid>/status:
@@ -249,6 +268,7 @@ Print services status, green if they are up red otherwise. To check if a process
 Where:
 - Audiobookshelf: name of service, for display purpose
 - /var/run/audiobookshelf.pid: pid of process
+
 
 #### load
 
@@ -261,6 +281,7 @@ Where:
 - LOAD_MIN: below this level, it will print in green
 
 between MIN and MAX will be print in grey.
+
 
 #### ram
 
