@@ -137,7 +137,7 @@
 			</div>
 			<!-- items in the group -->
 			<div class="group-content"
-			     x-show="!group.folded">
+			     x-show="!group.folded" x-transition>
 				<template x-for="(item, i_idx) in group.content" :key="g_idx*1000+i_idx">
 					<div class="item"
 					     :class="[ item.style ? item.style : '', item.run ? 'runner' : '' ]">
