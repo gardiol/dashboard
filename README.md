@@ -6,14 +6,18 @@ Released under **GPL-v3** [[https://www.gnu.org/licenses/gpl-3.0.en.html]]
 
 ## Introduction
 
-This is a pretty simple and mostly static HTML+jQuery Dashboard for your web landing pages or self-hosted dashboards.
+This is a pretty simple and mostly static HTML+AlpineJS Dashboard for your web landing pages or self-hosted dashboards.
 
 The concept behind *Simple Dashboard* is to be nice to see, easy to customize and essential in it's funciton yet usable
 and functional.
 
-I choose to stick with a little bit of static HTML plus a side of Javasvcript (jQuery based) to enhance it's funcitonality enough
-but not too much to bloat it. I was looking for something that did not require __any__ server-side setup beside a basic web-browser, that didn't need
-docker/podman to host, that didn't required PIP, NPM, NodeJS or anything like that, but was still a bit more flexible and dynamic than a basic HTML page.
+I choose the very lightweight but powerfull AlpineJS (https://alpinejs.dev) as base framework because i like it. 
+I was looking for something that did not require __any__ server-side setup beside a basic web-browser.
+
+*Simple Dashboard* does not require docker or podman, does not require python or PIP, NodeJS, NPM or whatever. All you need is a static web server
+that can present an HTML page and some static content (images, javascript mostly). 
+
+Optionally, you can check the **bash based** CGI monitor in the usb-folder *monitor*.
 
 Simple Dashboard was born.
 
@@ -21,10 +25,12 @@ Simple Dashboard was born.
 
 The basic functions of Simple Dashboard are:
 - display links to services / pages with customizable styles and optional images and text
-- display the output of external requests (like CGI or other pages) 
+- display the HTML output of external requests (like CGI or other pages) 
 - dynamically adapt to changes of configuration without the need to clear browser cache
 - organize services / pages by groups
 - collapsible (open / close) groups
+
+And, complete with the Monitor subfolder stuff:
 - system monitoring (load, RAM...)
 - resource monitoring (filesystems, mount points...)
 - network monitoring (ping, accessibility...)
@@ -33,7 +39,7 @@ The basic functions of Simple Dashboard are:
 
 ## The Concept
 
-Simple Dashboard is an HTML page with as little Javascript embedded as needed. The only underlying dependency is jQuery, and it's baked in, so there are no CDN or
+Simple Dashboard is an HTML page with as little Javascript embedded as needed. The only underlying dependency is AlpineJS, and it's baked in, so there are no CDN or
 external links needed to be resolved. You can deploy Simple Dashboard even without internet access of any kind.
 
 The basic workflow is:
@@ -47,11 +53,13 @@ The dashboard is divided in a header, a body composed of rows of items and a foo
 
 ## The Architecture
 
-The main *index.html* provide the basic HTML structure. An associated *index.css* provides the basic styling. You need to provide a *site.json* that describe the
-content you want to display and an *site.css* that provides the aestetics of how to display that content. An example *site.json.example* is provided, as well as a
-basic *site.css* with some default styles ready to use.
+The main *index.html* provide the basic HTML structure. You need to provide a *site.json* that describe the
+content you want to display and an optional *site.css* that provides the aestetics of how to display that content. 
+An example *site.json.example* is provided, as well as an empty *site.css*, this file should exist, even if empty.
 
 Some stock (kinda of) images are provided under *images* folder, you will need to drop in your own images of course.
+
+A few basic images are used by the *index.html* itself and they are all located in the same folder as index.html file itself.
 
 ## Basic Utilization
 
@@ -64,111 +72,77 @@ Let's see how to create your *site.json*.
 
 This is the core of Simple Dashboard.
 
-Example:
-
-    {
-	"title" : "My Dashboard Title",         // Page title
-	"header" : {                            // Header is optional
-		"img" : "",                         // header image is opional
-		"text" : "My beloved Dashboard"     // header text is optional
-		},
-    "content" : [                           // List of rows
-		{ 
-		"foldable": false,                  // Can the row be folded?
-		"title": "",                        // Row title, optional
-		"content":                          // row content
-
-            // Example of two link blocks to a service or page:
-			[ {
-				"img" : "images/monit.png", // optional image to use
-				"text" : "MonIT",           // optional text to display
-				"link" : "/monit/",         // link to open
-				"style" : "box",            // which style to use (see below)
-				"new_page" : true           // open the link in a new page or current page
-			},{
-				"img" : "images/netdt.png", // optional image to use
-				"text" : "NetData",         // optional text to display
-				"link" : "https://nd.nd.nd",// link to open       
-				"style" : "small",          // which style to use (see below)
-				"new_page" : true           // open the link in a new page or current page
-			} ]
-
-
-            // Example of one link block to display external output in dashboard:
-			[ {                              
-				"text" : "Services",        // Optional text
-				"run" : "/cgi/monitor.sh",  // Output of this URL will be displayed
-				"style" : "runner",         // which style to use (see below)
-				"interval" : 5              // Interval to run the update, in seconds
-            } ]
-        } ],
-    "footer" : {                              // optional footer
-        "img" : "",                           // optional image
-        "text" : "Contact Willy Gardiol",     // optional text
-        "link" : "mailto://willy@gardiol.org" // optional link
+Example (comments for reference only, remember that JSON files cannot have comments inside):
+```
+{
+    "title" : "My Dashboard Title",
+    "header" : {
+        "img" : "optional to display on top of page",
+        "text" : "optional to display on top of page"
+    },
+    "content" : 
+    [ {
+        "foldable": false,
+        "folded": false,
+        "title": "my section title",
+        "content": 
+        [ {
+            "img" : "images/webcam.png",
+            "text" : "Webcams",
+            "link" : "/video/",
+            "style" : "otopnal_css_class",
+            "new_page" : true
+          },{
+            "img" : "images/service.png",
+            "text" : "My Service",
+            "link" : "https://myservice.com",
+            "style" : "otopnal_css_class",
+            "new_page" : true
+          } ],
+          [ {
+            "text" : "Something running in the dashboard",
+            "run" : "/cgi/monitor.sh",
+            "style" : "otopnal_css_class",
+            "interval" : 5 # in seconds
+          } ],
+          [ {
+            "text" : "Some other periodic update output",
+            "run" : "https://myurl_to_display.com",
+            "style" : "otopnal_css_class",
+            "interval" : 60 # in seconds
+          } ]
+    } ],
+    "footer" : {
+        "img" : "",
+        "text" : "Contact Willy Gardiol",
+        "link" : "mailto://willy@gardiol.org"
         }
     }
+```
 
 Note that each item can only have either **link** or **run** but not both.
 
-How to display each block? You define that by using CSS, let's see *site.css*.
 
-### site.css
+### Styles
 
-The default CSS defines these classes:
-- **box**: a big squared image-rich link
-- **small**: a smallish squared image based link
-- **runnable**: free-flow space to hold output to be displayed
 
-feel free to edit and adapt it.
+Take a look inside *index.html*, there you will find all the CSS classes that you can modify in your *site.css* file, which will
+be loaded after the internal definition, and take precedence. In addition, you can specify the **style** attribute in the *site.json*
+and that specific class will be added to your item as well.
 
-You need to style the following HTML code:
-
-    <div class="box">
+In general, an item is a simple structure like this:
+```
+    <div>
         <a href="link">
-            <img src="image" />
-            <p>text</p>
+            <img src="image">
+            <div></div>
+            <span>text</span>
         </a>
     </div>
+```
 
-So the standard CSS would look like:
-    .box {
-    	width: 20em;
-    	height: 21em;
-    	background: orange;
-    	margin: 1em;
-    	padding: 0.5em;
-    	text-align: center;
-    	border-radius: 3em;
-    	box-shadow: 0.2em 0.2em darkred;
-    }   
-    .box > a > p {
-    	height: 2em;
-    	margin: 0px;
-    	font-size: 150%;
-    }
-    .box > a > img {
-    	height: 19em;
-    	width: 19em;
-    }
+The IMG and SPAN are always present, but the DIV is only used for items that run/fetch something.
 
-for output only items (non-link) you need to take care of the mising <a> tag accordingly:
-    .runner {
-    	max-width: 40em;
-    	max-height: 40em;
-    	background: orange;
-    	color: darkred;
-    	margin: 1em;
-    	padding: 0.5em;
-    	text-align: center;
-    	border-radius: 1em;
-    	box-shadow: 0.2em 0.2em darkred;
-    }   
-    .runner > p {
-    	color: darkred;
-    	margin: 0px;
-    	font-size: 150%;
-    }
 
 ## Web server example setup
 
