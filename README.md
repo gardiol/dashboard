@@ -37,6 +37,17 @@ And, complete with the Monitor subfolder stuff:
 - service monitoring (PID based monitoring)
 
 
+## Screenshots
+
+Well, here is a [link](https://www.gardiol.org) to a small personal page.
+
+And here are a couple of screenshots:
+
+![Screenshot 1](screenshots/Screenshot_20260514_162950.png)
+![Screenshot 2](screenshots/Screenshot_20260514_163030.png)
+
+
+
 ## The Concept
 
 Simple Dashboard is an HTML page with as little Javascript embedded as needed. The only underlying dependency is AlpineJS, and it's baked in, so there are no CDN or
