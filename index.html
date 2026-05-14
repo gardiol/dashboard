@@ -1,144 +1,205 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" href="favicon.png" type="image.png" />
-    <meta http-equiv="Cache-Control" content="no-cache">
-    <meta http-equiv="Pragma" content="no-cache">
-    <title></title>
-    <meta charset="UTF-8"/>
-    <link rel="stylesheet" href="index.css?ver=6"/>
-    <link rel="stylesheet" href="site.css?ver=10"/>
-    <script src="js/jquery-3.7.1.min.js" language="javascript"></script>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="icon" href="favicon.png" type="image.png" />
+	<meta http-equiv="Cache-Control" content="no-cache">
+	<meta http-equiv="Pragma" content="no-cache">
+	<title></title>
+	<meta charset="UTF-8"/>
+	<script defer src="alpine-3.15.12.min.js"></script>
+	<style>
+		body {
+			background: black;
+			color: white;
+			font-family: sans-serif;
+			height: 100%;
+			margin: 0;
+			padding: 0;
+			width: 100%;
+                }
+		a, a:visited, a:hover, a:active {
+			color: inherit;
+			text-decoration: none;
+			outline: none;
+		}
+		.loading {
+			align-items: center;
+			display: flex;
+			justify-content: center;
+			color: white;
+		}
+		.error {
+			display: flex;
+			background-color: lightred;
+			color: red;
+			justify-content: center;
+		}
+		.header {
+			display: flex;
+			flex-direction: row;
+			justify-content: center;
+		}
+		.group {
+		}
+		.group-title {
+			align-items: center;
+			display: flex;
+			flex-direction: row;
+			justify-content: center;
+		}
+		.group-title > img {
+			width: 1em;
+			height: 1em;
+		}
+		.group-content {
+			display: flex;
+			flex-direction: row;
+			flex-wrap: wrap;
+			gap: 1em;
+			justify-content: center;
+			margin-left: 1em;
+			margin-right: 1em;
+		}
+		.item {
+			float: left;
+			width: 7em;
+			height: 8em;
+			background: lightgray;
+			color: black;
+			padding: 1em;
+			text-align: center;
+			border-radius: 2em;
+			box-shadow: 0.2em 0.2em gray;
+		}
+		.item > a {
+			align-items: center;
+			display: flex;
+			flex-direction: column;
+			gap: 0.1em;
+		}
+		.item > a > img {
+			height: 5em;
+			width: 5em;
+		}
+		.item > a > span {
+			height: 2em;
+			align-content: center;
+		}
+		.runner {
+			max-width: 40em;
+			max-height: 40em;
+			background: black;
+			color: white;
+			border-radius: 1em;
+			overflow: hidden;
+			border: 2px solid gray;
+		}
+	</style>
+	<script><!-- dynamic site style -->
+		const link = document.createElement('link');
+		link.rel = 'stylesheet';
+		link.href = 'site.css?ts=' + Date.now();
+		document.head.appendChild(link);
+	</script>
 </head>
+
 <body>
-<div id="loading">
-    <img src="images/loading.png" />
-</div>
-<div id="content">
-</div>
+
+<div x-data="siteManager()" x-init="loadSite()">
+	<!-- loading banner -->
+	<div x-show="loading" class="loading">
+	    <img src="loading.png">
+	    <p>loading...</p>
+	</div>
+	<!-- error message banner -->
+	<div x-show="error" class="error">
+	    <span x-text="error"></span>
+	</div>
+	<!-- header -->
+	<div x-show="!loading && !error && header" class="header">
+		<img :src="header?.img">
+		<h1 x-text="header?.text"></h1>
+	</div>
+	<!-- content -->
+	<template x-for="(group, g_idx) in content" :key="g_idx">
+		<!-- group of boxes -->
+		<div class="group">
+			<!-- group title -->
+			<div x-show="group.title" 
+			     class="group-title"
+			     @click="group.folded = !group.folded">
+				<h2 x-text="group.title"></h2>
+				<img x-show="group.foldable" :src="group?.folded ? 'unfold.png' : 'fold.png'">
+			</div>
+			<!-- items in the group -->
+			<div class="group-content"
+			     x-show="!group.folded">
+				<template x-for="(item, i_idx) in group.content" :key="g_idx*1000+i_idx">
+					<div class="item"
+					     :class="[ item.style ? item.style : '', item.run ? 'runner' : '' ]">
+						<a :href="item.link ? item.link : 'javascript:void(0)'"
+						   :target="item.new_page ? '_blank' : '_self'">
+							<img x-show="item.img" :src="item.img">
+							<div x-show="item.run" x-init="item.run ? runner($el,item):null">
+								runner
+							</div>
+							<span x-show="item.text" x-text="item.text"></span>
+						</a>
+					</div>
+				</template>
+			</div>
+		</div>
+	</template>
+	<!-- footer -->
+	<div x-show="!loading && !error && footer" class="footer">
+		<a :href="footer?.link ? footer.link : 'javascript:void(0)'" target="_blank">
+			<span x-show="footer?.text" x-text="footer?.text"></span>
+		</a>
+	</div>
+
+</div> <!-- end of the fun -->
+
 <script>
-// Keep track of stuff that needs to run periodically
-var runners=[];
+document.addEventListener('alpine:init', () => {
+	Alpine.data('siteManager', () => ({
+		loading: true,
+		error: null,
+		header: null,
+		content: [],
+		footer: null,
 
-// run a GET and put it's output into an DOM tag
-function exec_get( url, target ){
-	$.get( url, function( data ){
-		$(target).html(data);
-	})
-	.fail( function() {
-		$(target).html("--load error--")
-		window.location.reload(true);
-	});
-}
+		runner(el, item) {
+				setTimeout(async ()=>{ 
+					const response = await fetch( item.run );
+					el.innerHTML = await response.text();
+					this.runner(el, item);
+				}, (item.interval ? item.interval:10) * 1000 );
+		},
 
-// start the magic when the page is fully loaded
-$(window).on('load', function(){
-	// site.json URL change son each reload to force cache invalidation for site.json:
-	$.get("site.json?" + (new Date().getTime()), function(data){
-		// Set page title
-		$(document).prop('title', data.title );
-    		// Do we have an header?
-		if ( data.header ){
-			let header_img = data.header.img ? '<div><img src="'+data.header.img+'" /></div>' : null;
-			let header_text = data.header.text ? '<span>' + data.header.text + '</span>' : null;
-			let header = $('<div class="header"></div>');
-			if ( header_img )
-				header.append( header_img );
-			if ( header_text )
-				header.append( header_text );
-     			$('#content').append( header );
-    		}
-		// Iterate all content rows
-		for (let r = 0; r < data.content.length; r++ ){
-			let row = data.content[r];
-			let box = $('<div class="container"></div>');
-			let unfold_img = row.foldable ? '<img src="images/downarrow.png" />' : "";
-			// an empty title means no foldable is possible
-			let box_title = row.title != "" ? $('<p>'+unfold_img+'<span>' + row.title + '</span>'+unfold_img+'</p>') : null;
-			if ( box_title ){
-				// a foldable row is folded by default
-				if ( row.foldable ){
-					box_title.click(function(){
-						box.toggleClass("folded");
-					});
-					box.addClass("folded");
-	     			}
-	     			box.append( box_title );
-			}
-     			// Iterate on each item in row
-			for ( let i = 0; i < row.content.length; i++ ){
-				let item = row.content[i];
-				let container = $('<div class="contained ' + item.style + '"></div>');
-				let text = item.text ? $('<p>' + item.text + '</p>' ) : null;
-				// Is this an item with a link?
-				if ( item.link ) {
-					let img = item.img != "" ? $('<img src="' + item.img + '" />' ) : null;
-					let link = $('<a href="' + item.link + '" target="' + (item.new_page ? '_blank' : '_self') + '"></a>' );
-					if ( img )
-						link.append( img );
-					if ( text )
-						link.append( text );
-					container.append( link );
-				}
-				// Is this an item that contains output?
-				if ( item.run ) { 
-					let run_target = $('<div></div>');
-					runners.push( {run:item.run, target:run_target, interval:item.interval*1000 } );
-					container.append( run_target );
-					if ( text )
-						container.append( text );
-				}
-      				box.append( container );
-     			}
-     			$('#content').append( box );
-    		}
-    		// is there a footer?
-		if ( data.footer ){
-			let link = data.footer.link ? $('<a href="'+ data.footer.link +'">') :  null;
-			let style = data.footer.style ? data.footer.style : "footer";
-			let text = data.footer.text ? $('<span>' + data.footer.text + '</span>') : null;
-			let l=data.footer.link;
-			let footer = $('<div class="' + style + '"></div>');
-			if ( text ){
-				if ( link ){
-					link.append( text );
-					footer.append( link );
-				}
-				else{
-					footer.append( text );
-				}
-			} 
-			else if ( link ){
-				footer.append( link );
-			}
-     			$('#content').append( footer );
-    		}
-		// Setup all runners to run 
-		for ( let r = 0; r < runners.length; r++ ){
-			let run=runners[r];
-			let func=function(){
-				exec_get( run.run, run.target );
-			};
-			setTimeout( function(){ 
-				func(); 
-				setInterval( func, run.interval );
-			}, 100);
-    		}
+		async loadSite() {
+		try{
+			const response = await fetch( "site.json" );
+                	const data = await response.json();
+			if ( data.title )
+				document.title = data.title;
+			if ( data.header )
+				this.header = data.header;
+			if ( data.footer )
+				this.footer = data.footer;
+			this.content = data.content;
+		} catch(e) {
+			console.error('Failed to fetch site.json', e);
+			this.error = "Loading failed: " + e;
+		} finally {
+			this.loading = false;
+		}} // load site.json logic
 
-    		// All ready: fade in content
-		$('#loading').fadeOut( {
-			'duration': 100,
-			'complete':
-			function() {
-				$('#content').fadeIn( { 'duration':100 } );
-      			}
-    		});
-  	}, 'json')
-	.fail( function(){
-		window.location.reload(true);
-	});
+
+	}));
 });
 </script>
+
 </body>
 </html>
