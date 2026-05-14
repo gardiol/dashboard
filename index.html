@@ -52,6 +52,7 @@
 		.group-title > img {
 			width: 1em;
 			height: 1em;
+			margin-left: 1em;
 		}
 		.group-content {
 			display: flex;
@@ -143,7 +144,7 @@
 						   :target="item.new_page ? '_blank' : '_self'">
 							<img x-show="item.img" :src="item.img">
 							<div x-show="item.run" x-init="item.run ? runner($el,item):null">
-								runner
+								<img src="wait.png">
 							</div>
 							<span x-show="item.text" x-text="item.text"></span>
 						</a>
