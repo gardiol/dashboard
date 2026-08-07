@@ -131,8 +131,8 @@
 			<!-- group title -->
 			<div x-show="group.title" 
 			     class="group-title"
-			     @click="group.folded = !group.folded">
-				<h2 x-text="group.title"></h2>
+			     @click="group.foldable ? group.folded = !group.folded : false">
+			<h2 x-text="group.title"></h2>
 				<img x-show="group.foldable" :src="group?.folded ? 'unfold.png' : 'fold.png'">
 			</div>
 			<!-- items in the group -->
