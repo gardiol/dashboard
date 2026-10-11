@@ -107,6 +107,10 @@ Example (comments for reference only, remember that JSON files cannot have comme
         "img" : "optional to display on top of page",
         "text" : "optional to display on top of page"
     },
+	"kuma": {
+		"interval": 300,
+		"style": "badge"
+	},
     "content" : 
     [ {
         "foldable": false,
@@ -149,6 +153,7 @@ Example (comments for reference only, remember that JSON files cannot have comme
 ```
 
 Note that each item can only have either **link** or **run** but not both.
+The Kuma blocks and rows are optional and can be omitted.
 
 ### Uptime Kuma support
 
@@ -157,6 +162,11 @@ Please note that monitor number should be unique for each badge (shared numbers,
 result).
 
 If you use dashboards with authentication, you will need to provide username and password in the URL itself.
+
+The badges will update every 5 minutes by default and you can change this in the "kuma" section in the json file. Also, you can 
+select the style:
+- badge: show "status: up" badge from Kuma itself
+- dot: a red/green dot
 
 
 ### Styles

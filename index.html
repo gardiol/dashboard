@@ -246,7 +246,7 @@
 			width: 3.5em;
 		}
 
-		/* ---------- kuma uptime status badge ---------- */
+		/* ---------- kuma uptime status: badge + simple dot ---------- */
 		.kuma-badge {
 			position: absolute;
 			top: .3em;
@@ -258,6 +258,21 @@
 			opacity: .96;
 			pointer-events: none;
 		}
+		/* simple red/green status dot ("dot" style) */
+		.kuma-dot {
+			position: absolute;
+			top: .45em;
+			right: .45em;
+			width: .85em;
+			height: .85em;
+			border-radius: 50%;
+			box-shadow: 0 0 0 1px rgba(0,0,0,.15);
+			pointer-events: none;
+		}
+		.kuma-dot.up        { background: #2e9e44; }
+		.kuma-dot.down      { background: var(--md-error); }
+		.kuma-dot.maintenance { background: #f5a623; }
+		.kuma-dot.unknown   { background: var(--md-outline); }
 
 		/* ---------- runner (live content card) ---------- */
 		.runner {
@@ -344,13 +359,17 @@
 							</div>
 							<span x-show="item.text" x-text="item.text"></span>
 						</a>
-						<img x-show="item.kumaBadge && item.kumaOk !== false"
+						<img x-show="kuma.style === 'badge' && item.kumaBadge && item.kumaOk !== false"
 						     class="kuma-badge"
-						     :src="item.kumaBadge"
+						     :src="item.kumaBadge ? item.kumaBadge + '?' + kumaTick : null"
 						     alt="Uptime status"
 						     title="Uptime status (Uptime Kuma)"
 						     @error="item.kumaOk = false"
 						     loading="lazy">
+						<span x-show="kuma.style === 'dot' && item.kumaBadge"
+						      class="kuma-dot"
+						      :class="item.kumaState || 'unknown'"
+						      :title="'Uptime: ' + (item.kumaState || 'unknown')"></span>
 					</div>
 				</template>
 			</div>
@@ -373,6 +392,10 @@ document.addEventListener('alpine:init', () => {
 		header: null,
 		content: [],
 		footer: null,
+		kuma: { interval: 300, style: 'badge', slug: '' },
+		kumaTick: 0,
+		kumaTimer: null,
+		onVisibility: null,
 
 		runner(el, item) {
 				setTimeout(async ()=>{ 
@@ -395,6 +418,53 @@ document.addEventListener('alpine:init', () => {
 			}
 		},
 
+		refreshKumaBadges() {
+			if (document.hidden) return;
+			if (this.kuma.style === 'dot') {
+				this.content.forEach(group => {
+					(group.content || []).forEach(item => {
+						if (item.kumaBadge) this.fetchDotStatus(item);
+					});
+				});
+			} else {
+				this.content.forEach(group => {
+					(group.content || []).forEach(item => {
+						if (item.kumaBadge) item.kumaOk = undefined;
+					});
+				});
+				this.kumaTick++;
+			}
+		},
+
+		async fetchDotStatus(item) {
+			try {
+				const r = await fetch(item.kumaBadge, { mode: 'cors', cache: 'no-store' });
+				const t = await r.text();
+				const m = t.match(/aria-label="([^"]+)"/);
+				const label = (m ? m[1] : '').toLowerCase();
+				if (label.includes('down')) item.kumaState = 'down';
+				else if (label.includes('up')) item.kumaState = 'up';
+				else if (label.includes('maintenance')) item.kumaState = 'maintenance';
+				else item.kumaState = 'unknown';
+			} catch (e) {
+				if (!item.kumaState) item.kumaState = 'unknown';
+			}
+		},
+
+		startKumaRefresh() {
+			const ms = (this.kuma.interval || 300) * 1000;
+			const run  = () => { if (this.kumaTimer) clearInterval(this.kumaTimer); this.kumaTimer = setInterval(() => this.refreshKumaBadges(), ms); };
+			const stop = () => { if (this.kumaTimer) { clearInterval(this.kumaTimer); this.kumaTimer = null; } };
+			this.onVisibility = () => {
+				if (document.hidden) stop();
+				else { this.refreshKumaBadges(); run(); }
+			};
+			document.removeEventListener('visibilitychange', this.onVisibility);
+			document.addEventListener('visibilitychange', this.onVisibility);
+			// Arm the timer only while visible; populate dots immediately on first paint.
+			if (!document.hidden) { run(); if (this.kuma.style === 'dot') this.refreshKumaBadges(); }
+		},
+
 		async loadSite() {
 		try{
 			const response = await fetch( "site.json" );
@@ -406,11 +476,17 @@ document.addEventListener('alpine:init', () => {
 			if ( data.footer )
 				this.footer = data.footer;
 			this.content = data.content;
+			if (data.kuma) {
+				if (data.kuma.interval) this.kuma.interval = data.kuma.interval;
+				if (data.kuma.style) this.kuma.style = data.kuma.style;
+				if (data.kuma.slug) this.kuma.slug = data.kuma.slug;
+			}
 			this.content.forEach(group => {
 				(group.content || []).forEach(item => {
 					item.kumaBadge = this.kumaBadgeSrc(item.kuma);
 				});
 			});
+			this.startKumaRefresh();
 		} catch(e) {
 			console.error('Failed to fetch site.json', e);
 			this.error = "Loading failed: " + e;
