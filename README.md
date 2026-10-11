@@ -41,6 +41,7 @@ The basic functions of Simple Dashboard are:
 - dynamically adapt to changes of configuration without the need to clear browser cache
 - organize services / pages by groups
 - collapsible (open / close) groups
+- provide Uptime Kuma monitor status (optional)
 
 And, complete with the Monitor subfolder stuff:
 - system monitoring (load, RAM...)
@@ -116,6 +117,7 @@ Example (comments for reference only, remember that JSON files cannot have comme
             "img" : "images/webcam.png",
             "text" : "Webcams",
             "link" : "/video/",
+            "kuma" : "https://<your_kuma_install>/dashboard/1"
             "style" : "otopnal_css_class",
             "new_page" : true
           },{
@@ -147,6 +149,14 @@ Example (comments for reference only, remember that JSON files cannot have comme
 ```
 
 Note that each item can only have either **link** or **run** but not both.
+
+### Uptime Kuma support
+
+If you specify a "kuma" link to a Kuma dashboard and monitor number, that will be used to show a small uptime badge.
+Please note that monitor number should be unique for each badge (shared numbers, even in different dashboards, will show the same
+result).
+
+If you use dashboards with authentication, you will need to provide username and password in the URL itself.
 
 
 ### Styles

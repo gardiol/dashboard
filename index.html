@@ -196,6 +196,7 @@
 			border-radius: var(--md-radius);
 			box-shadow: var(--md-elev-1);
 			transition: box-shadow .2s ease, transform .2s ease;
+			position: relative;
 		}
 		.item:hover {
 			box-shadow: var(--md-elev-3);
@@ -243,6 +244,19 @@
 		.item.small > a > img {
 			height: 3.5em;
 			width: 3.5em;
+		}
+
+		/* ---------- kuma uptime status badge ---------- */
+		.kuma-badge {
+			position: absolute;
+			top: .3em;
+			right: .3em;
+			height: 1em;
+			width: auto;
+			border-radius: 4px;
+			box-shadow: 0 0 0 1px var(--md-outline-variant), var(--md-elev-1);
+			opacity: .96;
+			pointer-events: none;
 		}
 
 		/* ---------- runner (live content card) ---------- */
@@ -330,6 +344,13 @@
 							</div>
 							<span x-show="item.text" x-text="item.text"></span>
 						</a>
+						<img x-show="item.kumaBadge && item.kumaOk !== false"
+						     class="kuma-badge"
+						     :src="item.kumaBadge"
+						     alt="Uptime status"
+						     title="Uptime status (Uptime Kuma)"
+						     @error="item.kumaOk = false"
+						     loading="lazy">
 					</div>
 				</template>
 			</div>
@@ -361,6 +382,19 @@ document.addEventListener('alpine:init', () => {
 				}, (item.interval ? item.interval:10) * 1000 );
 		},
 
+		kumaBadgeSrc(link) {
+			if (!link) return null;
+			try {
+				const u = new URL(link);
+				const nums = (u.pathname.match(/\d+/g) || []);
+				const id = nums.length ? nums[nums.length - 1] : null;
+				if (!id) return null;
+				return `${u.origin}/api/badge/${id}/status`;
+			} catch (e) {
+				return null;
+			}
+		},
+
 		async loadSite() {
 		try{
 			const response = await fetch( "site.json" );
@@ -372,6 +406,11 @@ document.addEventListener('alpine:init', () => {
 			if ( data.footer )
 				this.footer = data.footer;
 			this.content = data.content;
+			this.content.forEach(group => {
+				(group.content || []).forEach(item => {
+					item.kumaBadge = this.kumaBadgeSrc(item.kuma);
+				});
+			});
 		} catch(e) {
 			console.error('Failed to fetch site.json', e);
 			this.error = "Loading failed: " + e;
