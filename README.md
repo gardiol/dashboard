@@ -42,6 +42,11 @@ The basic functions of Simple Dashboard are:
 - organize services / pages by groups
 - collapsible (open / close) groups
 - provide Uptime Kuma monitor status (optional)
+- switch between light, dark and automatic (system) theme with a button in
+  the top-right corner; the choice is remembered in the browser and applied
+  before the first paint, so there is no flash
+- optional custom links in the top-right action bar, next to the theme
+  button, configured in __site.json__ (see the `links` section below)
 
 And, complete with the Monitor subfolder stuff:
 - system monitoring (load, RAM...)
@@ -107,6 +112,10 @@ Example (comments for reference only, remember that JSON files cannot have comme
         "img" : "optional to display on top of page",
         "text" : "optional to display on top of page"
     },
+    "links" : [
+        { "text" : "Login", "link" : "https://auth.example/", "new_page" : true },
+        { "img" : "images/logout.png", "link" : "https://auth.example/logout" }
+    ],
 	"kuma": {
 		"interval": 300,
 		"style": "badge"
@@ -153,6 +162,26 @@ Example (comments for reference only, remember that JSON files cannot have comme
 ```
 
 Note that each item can only have either **link** or **run** but not both.
+
+
+### Top-right action bar links
+
+In addition to the content groups, you can place a set of small clickable links in the
+top-right corner of the page, right next to the theme switcher button. This is handy
+for actions like *Login* / *Logout*, a *Settings* page, or a quick jump to another
+dashboard.
+
+They are configured in the optional **`links`** array of *site.json*. Each entry can be
+one of two forms:
+
+- a **text** link: `{ "text": "Login", "link": "...", "new_page": true }` — rendered as a
+  small rounded pill with the short text on it;
+- an **icon** link: `{ "img": "images/logout.png", "link": "..." }` — rendered as a small
+  round button showing the icon (the file path, relative to the dashboard root).
+
+Use `text` **or** `img`, not both. As with the content items, `new_page: true` opens the
+link in a new tab. If `links` is omitted (or empty) the action bar simply shows only the
+theme button, so existing *site.json* files keep working unchanged.
 The Kuma blocks and rows are optional and can be omitted.
 
 ### Uptime Kuma support

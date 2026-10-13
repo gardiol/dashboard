@@ -4,6 +4,14 @@
         "img" : "",                         // header image is opional
         "text" : "My beloved Dashboard"     // header text is optional
         },
+    "links" : [                             // Top-right action bar links (optional, next to the theme button)
+        { "text" : "Login",                 // short text to display as a clickable pill
+          "link" : "https://auth.example/",// URL to open
+          "new_page" : true                // open in a new tab (optional)
+        },
+        { "img" : "images/logout.png",      // ...or an icon reference instead of text
+          "link" : "https://auth.example/logout" }
+    ],
     "content" : [                           // List of rows
         {
         "foldable": false,                  // Can the row be folded?
