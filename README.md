@@ -44,7 +44,8 @@ The basic functions of Simple Dashboard are:
 - provide Uptime Kuma monitor status (optional)
 - switch between light, dark and automatic (system) theme with a button in
   the top-right corner; the choice is remembered in the browser and applied
-  before the first paint, so there is no flash
+  before the first paint, so there is no flash (the button can be hidden by
+  setting `theme.switcher` to `false` in __site.json__)
 - optional custom links in the top-right action bar, next to the theme
   button, configured in __site.json__ (see the `links` section below)
 
@@ -116,6 +117,9 @@ Example (comments for reference only, remember that JSON files cannot have comme
         { "text" : "Login", "link" : "https://auth.example/", "new_page" : true },
         { "img" : "images/logout.png", "link" : "https://auth.example/logout" }
     ],
+    "theme" : {
+        "switcher" : true
+    },
 	"kuma": {
 		"interval": 300,
 		"style": "badge"
@@ -182,6 +186,24 @@ one of two forms:
 Use `text` **or** `img`, not both. As with the content items, `new_page: true` opens the
 link in a new tab. If `links` is omitted (or empty) the action bar simply shows only the
 theme button, so existing *site.json* files keep working unchanged.
+
+
+### Theme
+
+The dashboard automatically follows the system light/dark preference, and a button in the
+top-right corner lets the user override it (light, dark or automatic); the choice is stored
+in the browser. If you want to lock the theme to whatever the system provides and remove
+that button, set **`theme.switcher`** to **`false`** in *site.json*:
+
+```
+"theme" : {
+    "switcher" : false
+}
+```
+
+It defaults to `true` when the `theme` section (or the `switcher` key) is omitted, so
+existing *site.json* files keep the button unchanged.
+
 The Kuma blocks and rows are optional and can be omitted.
 
 ### Uptime Kuma support

@@ -12,6 +12,9 @@
         { "img" : "images/logout.png",      // ...or an icon reference instead of text
           "link" : "https://auth.example/logout" }
     ],
+    "theme" : {                             // Theme settings (optional)
+        "switcher" : true                   // show the light/dark/auto button? set false to hide it
+    },
     "content" : [                           // List of rows
         {
         "foldable": false,                  // Can the row be folded?
