@@ -431,7 +431,7 @@
 	    <span x-text="error"></span>
 	</div>
 	<!-- header -->
-	<div x-show="!loading && !error && header" class="header">
+	<div x-show="!loading && !error && (header?.img || header?.text)" class="header">
 		<img x-show="header?.img" :src="header?.img" alt="">
 		<h1 x-text="header?.text"></h1>
 	</div>
@@ -497,7 +497,7 @@
 		</div>
 	</template>
 	<!-- footer -->
-	<div x-show="!loading && !error && footer" class="footer">
+	<div x-show="!loading && !error && footer?.text" class="footer">
 		<a :href="footer?.link ? footer.link : 'javascript:void(0)'" target="_blank">
 			<span x-show="footer?.text" x-text="footer?.text"></span>
 		</a>
